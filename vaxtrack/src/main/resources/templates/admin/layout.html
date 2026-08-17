@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - VaxTrack">VaxTrack Admin</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+    <aside class="sidebar">
+        <h2 class="sidebar-title">VaxTrack</h2>
+        <nav>
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+            <a th:href="@{/admin/hospitals}">Hospitals</a>
+            <a th:href="@{/admin/vaccines}">Vaccines</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div layout:fragment="content">
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>
