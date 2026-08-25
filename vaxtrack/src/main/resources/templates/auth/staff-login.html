@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Login - VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/staff-login.css}">
+</head>
+<body>
+
+<div class="login-page">
+
+    <!-- LEFT SIDE: branding image -->
+    <div class="login-left">
+        <img th:src="@{/images/login-banner.png}" alt="VaxTrack">
+    </div>
+
+    <!-- RIGHT SIDE: login form card -->
+    <div class="login-right">
+        <div class="login-card">
+
+            <img th:src="@{/images/logo.png}" alt="VaxTrack Logo" class="card-logo">
+
+            <h1>Staff Login</h1>
+            <p class="subtitle">Welcome back! Please log in to access your dashboard.</p>
+
+            <!-- Shows an error message if login failed -->
+            <p th:if="${param.error}" class="error-message">
+                Invalid username or password.
+            </p>
+
+            <!-- Spring Security automatically handles POST requests to /login/staff -->
+            <form th:action="@{/login/staff}" method="post">
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <img id="eyeIcon"
+                         th:src="@{/images/hide.png}"
+                         class="toggle-eye"
+                         alt="Toggle password visibility"
+                         onclick="togglePassword()">
+                </div>
+
+                <button type="submit">Login</button>
+
+            </form>
+
+            <p class="footer-text">&copy; 2026 Smart Vaccination Management System</p>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Toggles password field between hidden and visible text,
+    // and swaps the eye icon to match.
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const isHidden = passwordInput.type === 'password';
+
+        passwordInput.type = isHidden ? 'text' : 'password';
+
+        eyeIcon.src = isHidden
+            ? /*[[@{/images/show.png}]]*/ '/images/show.png'
+            : /*[[@{/images/hide.png}]]*/ '/images/hide.png';
+    }
+</script>
+
+</body>
+</html>
