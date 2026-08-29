@@ -7,8 +7,121 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>Super Admin Dashboard</h1>
-    <p>Welcome! This is where your national stats will appear.</p>
+
+    <div class="page-header">
+        <p class="welcome-text">Welcome back,</p>
+        <h2 class="welcome-name" th:text="${username}">Super Admin</h2>
+        <p class="welcome-sub">Here's what's happening with vaccination across the country.</p>
+    </div>
+
+    <!-- ===== STAT CARDS ===== -->
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Vaccinated</span>
+                <span class="stat-value" th:text="${totalVaccinated}">0</span>
+                <span class="stat-note">Live once clinical module is active</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">✖</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Failed / Missed</span>
+                <span class="stat-value" th:text="${totalFailed}">0</span>
+                <span class="stat-note">Live once clinical module is active</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">📦</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Vaccine Stock</span>
+                <span class="stat-value" th:text="${totalStock}">0</span>
+                <span class="stat-note">Live once inventory module is active</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">🏥</div>
+            <div class="stat-body">
+                <span class="stat-label">Active Hospitals</span>
+                <span class="stat-value" th:text="${activeHospitals}">0</span>
+                <span class="stat-note" th:text="|${totalHospitals} total registered|">0 total registered</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== VACCINE STATUS ===== -->
+    <div class="panel">
+        <h3 class="panel-title">Vaccine Status</h3>
+        <div class="vaccine-status-row">
+            <div class="vaccine-status-item">
+                <div class="vaccine-status-icon active">✔</div>
+                <div>
+                    <span class="vaccine-status-value" th:text="${activeVaccines}">0</span>
+                    <span class="vaccine-status-label">Currently Active Vaccines</span>
+                </div>
+            </div>
+            <div class="vaccine-status-item">
+                <div class="vaccine-status-icon inactive">✖</div>
+                <div>
+                    <span class="vaccine-status-value" th:text="${deactivatedVaccines}">0</span>
+                    <span class="vaccine-status-label">Deactivated Vaccines</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TWO-COLUMN TABLES ===== -->
+    <div class="two-col">
+
+        <!-- Hospital Overview -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Hospital Overview</h3>
+                <a th:href="@{/admin/hospitals}" class="link-btn">View All Hospitals →</a>
+            </div>
+
+            <table class="data-table" th:if="${not #lists.isEmpty(recentHospitals)}">
+                <thead>
+                <tr>
+                    <th>Hospital Name</th>
+                    <th>District</th>
+                    <th>Daily Capacity</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="h : ${recentHospitals}">
+                    <td th:text="${h.name}">Name</td>
+                    <td th:text="${h.district}">District</td>
+                    <td th:text="${h.dailyCapacity}">0</td>
+                    <td><span class="badge active" th:text="${h.status}">ACTIVE</span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(recentHospitals)}">
+                No hospitals registered yet. Add your first hospital from Hospital Management.
+            </p>
+        </div>
+
+        <!-- Recent Registered Patients -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Recent Registered Patients</h3>
+                <a th:href="@{/admin/patients}" class="link-btn">View All Patients →</a>
+            </div>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(recentPatients)}">
+                No patients registered yet. This table will populate once patient registration is live.
+            </p>
+        </div>
+
+    </div>
+
 </div>
 </body>
 </html>
