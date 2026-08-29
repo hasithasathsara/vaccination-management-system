@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Hospital Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- ===== FLASH MESSAGE BANNER ===== -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- ===== TOOLBAR ===== -->
+    <div class="toolbar">
+        <input type="text" id="hospitalSearch" class="search-input" data-table-target="hospitalTable"
+               placeholder="Search by hospital name or district...">
+        <button class="btn-primary" onclick="openModal('addHospitalModal')">+ Add Hospital</button>
+    </div>
+
+    <!-- ===== HOSPITAL TABLE ===== -->
+    <div class="panel">
+        <table class="data-table" id="hospitalTable" th:if="${not #lists.isEmpty(hospitals)}">
+            <thead>
+            <tr>
+                <th>Hospital Name</th>
+                <th>District</th>
+                <th>Daily Capacity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="h : ${hospitals}">
+                <td th:text="${h.name}">Name</td>
+                <td th:text="${h.district}">District</td>
+                <td th:text="${h.dailyCapacity}">0</td>
+                <td>
+                    <span class="badge" th:classappend="${h.status.name() == 'ACTIVE'} ? 'active' : 'inactive'"
+                          th:text="${h.status}">ACTIVE</span>
+                </td>
+                <td class="actions-cell">
+                    <button class="btn-icon" title="Edit"
+                            th:onclick="'openModal(\'editHospitalModal' + ${h.hospitalId} + '\')'">✎</button>
+
+                    <form th:action="@{/admin/hospitals/{id}/toggle-status(id=${h.hospitalId})}" method="post"
+                          class="inline-form">
+                        <button type="submit" class="btn-icon"
+                                th:title="${h.status.name() == 'ACTIVE'} ? 'Deactivate' : 'Reactivate'"
+                                th:onclick="${h.status.name() == 'ACTIVE'} ? 'return confirm(\'Deactivate this hospital? It will be hidden from new bookings but all history stays intact.\')' : null">
+                            <span th:text="${h.status.name() == 'ACTIVE'} ? '⛔' : '↺'">⛔</span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(hospitals)}">
+            No hospitals yet. Click "Add Hospital" to register the first one.
+        </p>
+    </div>
+
+    <!-- ===== ADD HOSPITAL MODAL ===== -->
+    <div class="modal-overlay" id="addHospitalModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Hospital</h3>
+                <button class="modal-close" onclick="closeModal('addHospitalModal')">&times;</button>
+            </div>
+            <form th:action="@{/admin/hospitals/add}" th:object="${newHospital}" method="post">
+                <div class="form-group">
+                    <label>Hospital Name</label>
+                    <input type="text" th:field="*{name}" placeholder="e.g. National Hospital Colombo" required>
+                </div>
+                <div class="form-group">
+                    <label>District</label>
+                    <input type="text" th:field="*{district}" placeholder="e.g. Colombo" required>
+                </div>
+                <div class="form-group">
+                    <label>Daily Capacity</label>
+                    <input type="number" th:field="*{dailyCapacity}" min="1" placeholder="e.g. 500" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addHospitalModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Hospital</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== EDIT HOSPITAL MODALS (one per hospital, pre-filled) ===== -->
+    <div class="modal-overlay" th:id="'editHospitalModal' + ${h.hospitalId}" th:each="h : ${hospitals}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Hospital</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'editHospitalModal' + ${h.hospitalId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{/admin/hospitals/{id}/edit(id=${h.hospitalId})}" method="post">
+                <div class="form-group">
+                    <label>Hospital Name</label>
+                    <input type="text" name="name" th:value="${h.name}" required>
+                </div>
+                <div class="form-group">
+                    <label>District</label>
+                    <input type="text" name="district" th:value="${h.district}" required>
+                </div>
+                <div class="form-group">
+                    <label>Daily Capacity</label>
+                    <input type="number" name="dailyCapacity" th:value="${h.dailyCapacity}" min="1" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'editHospitalModal' + ${h.hospitalId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
