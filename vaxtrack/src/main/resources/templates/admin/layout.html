@@ -3,6 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:title-pattern="$CONTENT_TITLE - VaxTrack">VaxTrack Admin</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
@@ -10,21 +11,86 @@
 
 <div class="admin-wrapper">
 
-    <aside class="sidebar">
-        <h2 class="sidebar-title">VaxTrack</h2>
-        <nav>
-            <a th:href="@{/admin/dashboard}">Dashboard</a>
-            <a th:href="@{/admin/hospitals}">Hospitals</a>
-            <a th:href="@{/admin/vaccines}">Vaccines</a>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img th:src="@{/images/logo.png}" alt="VaxTrack logo" class="brand-logo">
+            <div class="brand-text">
+                <span class="brand-name">VaxTrack</span>
+                <span class="brand-tagline">Smart Vaccination Management System</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active'">
+                <span class="nav-icon">🌐</span> Global Dashboard
+            </a>
+            <a th:href="@{/admin/hospitals}" th:classappend="${activePage == 'hospitals'} ? 'active'">
+                <span class="nav-icon">🏥</span> Hospital Management
+            </a>
+            <a th:href="@{/admin/vaccines}" th:classappend="${activePage == 'vaccines'} ? 'active'">
+                <span class="nav-icon">💉</span> Vaccine Management
+            </a>
+            <a th:href="@{/admin/sub-admins}" th:classappend="${activePage == 'subAdmins'} ? 'active'">
+                <span class="nav-icon">🧑‍💼</span> Sub Admin Management
+            </a>
+            <a th:href="@{/admin/inventory-staff}" th:classappend="${activePage == 'inventoryStaff'} ? 'active'">
+                <span class="nav-icon">📦</span> Inventory Staff Management
+            </a>
+            <a th:href="@{/admin/patients}" th:classappend="${activePage == 'patients'} ? 'active'">
+                <span class="nav-icon">🧑‍🤝‍🧑</span> Patients Management
+            </a>
         </nav>
+
+        <form th:action="@{/logout}" method="post" class="sidebar-logout">
+            <button type="submit"><span class="nav-icon">🚪</span> Logout</button>
+        </form>
     </aside>
 
-    <main class="content">
-        <div layout:fragment="content">
-        </div>
-    </main>
+    <!-- MAIN AREA -->
+    <div class="main-area">
 
+        <!-- TOPBAR  -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" id="hamburgerBtn" aria-label="Toggle sidebar">☰</button>
+                <h1 class="page-title" th:text="${pageTitle}">Page Title</h1>
+            </div>
+
+            <div class="topbar-right">
+                <button class="icon-btn bell-btn" aria-label="Notifications">
+                    🔔<span class="bell-dot"></span>
+                </button>
+
+                <div class="profile-menu">
+                    <button class="profile-trigger" id="profileTrigger">
+                        <span class="profile-avatar">👤</span>
+                        <span class="profile-info">
+                            <span class="profile-name" th:text="${username}">Super Admin</span>
+                            <span class="profile-role" th:text="${roleLabel}">Role</span>
+                        </span>
+                        <span class="chevron">▾</span>
+                    </button>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a th:href="@{/admin/profile}">My Profile</a>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <main class="content">
+            <div layout:fragment="content">
+
+            </div>
+        </main>
+
+    </div>
 </div>
 
+<script th:src="@{/js/admin.js}"></script>
 </body>
 </html>
