@@ -7,14 +7,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-// Spring Security calls this automatically during login,
-// passing in whatever username was typed into the form.
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    // Constructor injection - Spring automatically supplies the repository.
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
