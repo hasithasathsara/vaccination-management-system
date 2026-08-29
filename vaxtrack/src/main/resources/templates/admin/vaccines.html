@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Vaccine Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!--  FLASH MESSAGE BANNER -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!--  TOOLBAR -->
+    <div class="toolbar">
+        <input type="text" id="vaccineSearch" class="search-input" data-table-target="vaccineTable"
+               placeholder="Search by vaccine brand name...">
+        <button class="btn-primary" onclick="openModal('addVaccineModal')">+ Add Vaccine</button>
+    </div>
+
+    <!-- VACCINE TABLE -->
+    <div class="panel">
+        <table class="data-table" id="vaccineTable" th:if="${not #lists.isEmpty(vaccines)}">
+            <thead>
+            <tr>
+                <th>Brand Name</th>
+                <th>Doses Required</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${vaccines}">
+                <td th:text="${v.brandName}">Brand</td>
+                <td th:text="${v.dosesRequired}">2</td>
+                <td>
+                    <span class="badge" th:classappend="${v.status.name() == 'ACTIVE'} ? 'active' : 'inactive'"
+                          th:text="${v.status}">ACTIVE</span>
+                </td>
+                <td class="actions-cell">
+                    <button class="btn-icon" title="Edit"
+                            th:onclick="'openModal(\'editVaccineModal' + ${v.vaccineId} + '\')'">✎</button>
+
+                    <form th:action="@{/admin/vaccines/{id}/toggle-status(id=${v.vaccineId})}" method="post"
+                          class="inline-form">
+                        <button type="submit" class="btn-icon"
+                                th:title="${v.status.name() == 'ACTIVE'} ? 'Deactivate' : 'Reactivate'"
+                                th:onclick="${v.status.name() == 'ACTIVE'} ? 'return confirm(\'Deactivate this vaccine? It will be hidden from new bookings but all history stays intact.\')' : null">
+                            <span th:text="${v.status.name() == 'ACTIVE'} ? '⛔' : '↺'">⛔</span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(vaccines)}">
+            No vaccines yet. Click "Add Vaccine" to register the first brand.
+        </p>
+    </div>
+
+    <!--  ADD VACCINE MODAL  -->
+    <div class="modal-overlay" id="addVaccineModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Vaccine</h3>
+                <button class="modal-close" onclick="closeModal('addVaccineModal')">&times;</button>
+            </div>
+            <form th:action="@{/admin/vaccines/add}" th:object="${newVaccine}" method="post">
+                <div class="form-group">
+                    <label>Brand Name</label>
+                    <input type="text" th:field="*{brandName}" placeholder="e.g. Pfizer-BioNTech" required>
+                </div>
+                <div class="form-group">
+                    <label>Doses Required</label>
+                    <input type="number" th:field="*{dosesRequired}" min="1" placeholder="e.g. 2" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addVaccineModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Vaccine</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--  EDIT VACCINE MODALS (one per vaccine, pre-filled)  -->
+    <div class="modal-overlay" th:id="'editVaccineModal' + ${v.vaccineId}" th:each="v : ${vaccines}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Vaccine</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'editVaccineModal' + ${v.vaccineId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{/admin/vaccines/{id}/edit(id=${v.vaccineId})}" method="post">
+                <div class="form-group">
+                    <label>Brand Name</label>
+                    <input type="text" name="brandName" th:value="${v.brandName}" required>
+                </div>
+                <div class="form-group">
+                    <label>Doses Required</label>
+                    <input type="number" name="dosesRequired" th:value="${v.dosesRequired}" min="1" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'editVaccineModal' + ${v.vaccineId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
