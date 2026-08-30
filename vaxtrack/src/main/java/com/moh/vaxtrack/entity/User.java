@@ -1,6 +1,8 @@
 package com.moh.vaxtrack.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "user")
@@ -11,6 +13,7 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
+    @NotBlank(message = "Username is required")
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
@@ -21,6 +24,9 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    // @Email only checks the FORMAT (e.g. "a@b.com") — it still allows an empty
+    // value, since email is optional (nullable) in the database.
+    @Email(message = "Enter a valid email address")
     @Column(name = "email")
     private String email;
 
