@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Patients Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Read-only notice -->
+    <p class="modal-note" style="margin-bottom:18px;">
+        This view is read-only. Super Admin cannot create or edit patient records — patients
+        manage their own data. Deletion is permanent and reserved for death or relocation cases only.
+    </p>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input type="text" id="patientSearch" class="search-input" data-table-target="patientTable"
+               placeholder="Search by name or ID number...">
+    </div>
+
+    <!-- Patient table -->
+    <div class="panel">
+        <table class="data-table" id="patientTable" th:if="${not #lists.isEmpty(patients)}">
+            <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>ID Type</th>
+                <th>ID Number</th>
+                <th>Age</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${patients}">
+                <td th:text="${p.fullName}">Name</td>
+                <td th:text="${p.idType}">NIC</td>
+                <td th:text="${p.idNumber}">ID</td>
+                <td th:text="${p.age}">0</td>
+                <td th:text="${p.phoneNumber}">Phone</td>
+                <td class="actions-cell">
+                    <button class="btn-icon" title="View"
+                            th:onclick="'openModal(\'viewPatientModal' + ${p.patientId} + '\')'">👁</button>
+                    <button class="btn-icon" title="Delete permanently"
+                            th:onclick="'openModal(\'deletePatientModal' + ${p.patientId} + '\')'">🗑</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(patients)}">
+            No patients registered yet. This page will populate once Patient Registration is live.
+        </p>
+    </div>
+
+    <!-- View details modals, one per patient -->
+    <div class="modal-overlay" th:id="'viewPatientModal' + ${p.patientId}" th:each="p : ${patients}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Patient Details</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'viewPatientModal' + ${p.patientId} + '\')'">&times;</button>
+            </div>
+            <div class="credentials-box">
+                <div class="credential-row">
+                    <span class="credential-label">Full Name</span>
+                    <span class="credential-value" th:text="${p.fullName}">Name</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label" th:text="${p.idType}">ID Type</span>
+                    <span class="credential-value" th:text="${p.idNumber}">ID</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Age</span>
+                    <span class="credential-value" th:text="${p.age}">0</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Phone</span>
+                    <span class="credential-value" th:text="${p.phoneNumber}">Phone</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Email</span>
+                    <span class="credential-value" th:text="${p.email} ?: '—'">Email</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Address</span>
+                    <span class="credential-value" th:text="${p.address} ?: '—'">Address</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Disabilities</span>
+                    <span class="credential-value" th:text="${p.disabilities} ?: 'None reported'">—</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" th:onclick="'closeModal(\'viewPatientModal' + ${p.patientId} + '\')'">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hard delete modals, one per patient -->
+    <div class="modal-overlay" th:id="'deletePatientModal' + ${p.patientId}" th:each="p : ${patients}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⚠️ Permanently Delete Patient</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'deletePatientModal' + ${p.patientId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{/admin/patients/{id}/delete(id=${p.patientId})}" method="post">
+                <div style="padding: 20px 24px 0;">
+                    <p class="modal-note">
+                        This <strong>permanently removes</strong> <span th:text="${p.fullName}">this patient</span>'s
+                        record. Unlike every other delete in this system, this cannot be undone —
+                        there is no reactivation. Use this only for death or permanent relocation overseas.
+                    </p>
+                </div>
+                <div class="form-group" style="padding: 0 24px;">
+                    <label>Reason</label>
+                    <select name="reason" required>
+                        <option value="">Select a reason...</option>
+                        <option value="Death">Death</option>
+                        <option value="Relocated overseas">Relocated overseas</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="padding: 0 24px;">
+                    <label>Notes <span class="optional-tag">(optional)</span></label>
+                    <input type="text" name="notes" placeholder="Any extra context for the record">
+                </div>
+                <div class="modal-footer" style="padding: 20px 24px;">
+                    <button type="button" class="btn-secondary" th:onclick="'closeModal(\'deletePatientModal' + ${p.patientId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-danger">Delete Permanently</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
