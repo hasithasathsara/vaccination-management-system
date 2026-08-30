@@ -1,3 +1,7 @@
+/* ============================================================
+   VaxTrack — Admin Dashboard Stylesheet
+   Color system: blue -> purple gradient (matches the VaxTrack logo)
+   ============================================================ */
 
 :root {
     --primary-blue: #3b6fe8;
@@ -45,7 +49,9 @@ a {
     color: inherit;
 }
 
-
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
 
 .admin-wrapper {
     display: flex;
@@ -59,8 +65,9 @@ a {
     min-width: 0; /* allows children to shrink properly on small screens */
 }
 
-/*
-   SIDEBAR */
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 
 .sidebar {
     width: 260px;
@@ -168,9 +175,9 @@ a {
     color: #fca5a5;
 }
 
-/*
+/* ============================================================
    TOPBAR
-   */
+   ============================================================ */
 
 .topbar {
     display: flex;
@@ -320,9 +327,9 @@ a {
     background: var(--bg-page);
 }
 
-/*
+/* ============================================================
    PAGE CONTENT
-    */
+   ============================================================ */
 
 .content {
     padding: 28px;
@@ -350,9 +357,9 @@ a {
     font-size: 14px;
 }
 
-/*
+/* ============================================================
    STAT CARDS
-    */
+   ============================================================ */
 
 .stat-grid {
     display: grid;
@@ -416,9 +423,9 @@ a {
     margin-top: 2px;
 }
 
-/*
+/* ============================================================
    PANELS (Vaccine Status, Tables)
-  */
+   ============================================================ */
 
 .panel {
     background: var(--bg-card);
@@ -492,9 +499,9 @@ a {
     color: var(--text-muted);
 }
 
-/*
+/* ============================================================
    TABLES
-    */
+   ============================================================ */
 
 .two-col {
     display: grid;
@@ -554,9 +561,9 @@ a {
     padding: 30px 10px;
 }
 
-/*
+/* ============================================================
    TOOLBAR (search + primary action, used above data tables)
-    */
+   ============================================================ */
 
 .toolbar {
     display: flex;
@@ -583,9 +590,9 @@ a {
     box-shadow: 0 0 0 3px rgba(59, 111, 232, 0.12);
 }
 
-/*
+/* ============================================================
    BUTTONS
-   */
+   ============================================================ */
 
 .btn-primary {
     background: var(--gradient-main);
@@ -620,6 +627,37 @@ a {
     background: var(--border-light);
 }
 
+.btn-danger {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.form-group select {
+    padding: 10px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    background: #fff;
+    transition: var(--transition);
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(59, 111, 232, 0.12);
+}
+
 .btn-icon {
     background: var(--bg-page);
     border: 1px solid var(--border-light);
@@ -648,9 +686,9 @@ a {
     margin: 0;
 }
 
-/*
+/* ============================================================
    MODALS
-   */
+   ============================================================ */
 
 .modal-overlay {
     display: none;
@@ -742,9 +780,52 @@ a {
     margin-top: 8px;
 }
 
-/*
+.optional-tag {
+    font-weight: 400;
+    color: var(--text-light);
+    font-size: 12px;
+}
+
+.modal-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    background: var(--bg-page);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin: 4px 0 16px;
+    line-height: 1.5;
+}
+
+.credentials-box {
+    padding: 20px 24px 4px;
+}
+
+.credential-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--bg-page);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+}
+
+.credential-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.credential-value {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: "Consolas", "Courier New", monospace;
+    color: var(--primary-purple);
+}
+
+/* ============================================================
    FLASH MESSAGE BANNER
-   */
+   ============================================================ */
 
 .flash-banner {
     padding: 12px 18px;
@@ -772,9 +853,9 @@ a {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/*
+/* ============================================================
    RESPONSIVE
-  */
+   ============================================================ */
 
 @media (max-width: 1024px) {
     .stat-grid {
