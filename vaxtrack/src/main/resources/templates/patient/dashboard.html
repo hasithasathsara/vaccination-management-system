@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Dashboard - VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/patient-shared.css}">
+    <link rel="stylesheet" th:href="@{/css/patient-dashboard.css}">
+</head>
+<body>
+
+<div class="dashboard-welcome">
+    <h1>Welcome, <span th:text="${patient.fullName}">Patient</span></h1>
+    <p>Here's your digital vaccination ID.</p>
+</div>
+
+<!-- Real digital ID card, same component used in the registration preview -->
+<div class="digital-id-card">
+    <div class="id-card-header">
+        <img th:src="@{/images/logo.png}" alt="VaxTrack" class="id-card-logo">
+        <span class="id-card-title">VaxTrack Digital ID</span>
+    </div>
+
+    <span class="id-card-name" th:text="${patient.fullName}">Name</span>
+
+    <div class="id-card-grid">
+        <div>
+            <span class="id-card-field-label" th:text="${patient.idType}">ID Type</span>
+            <span class="id-card-field-value" th:text="${patient.idNumber}">ID Number</span>
+        </div>
+        <div>
+            <span class="id-card-field-label">Age</span>
+            <span class="id-card-field-value" th:text="${patient.age}">0</span>
+        </div>
+        <div>
+            <span class="id-card-field-label">Phone</span>
+            <span class="id-card-field-value" th:text="${patient.phoneNumber}">Phone</span>
+        </div>
+    </div>
+
+    <div class="id-card-footer">
+        QR code unlocks once your first appointment is booked.
+    </div>
+</div>
+
+<p class="coming-soon-note">
+    Booking, appointment history, and certificates are coming in a future update.
+</p>
+
+<form th:action="@{/patient-logout}" method="post" class="logout-form">
+    <button type="submit">Log Out</button>
+</form>
+
+</body>
+</html>
