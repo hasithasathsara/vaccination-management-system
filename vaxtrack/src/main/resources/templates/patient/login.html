@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Login - VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/staff-login.css}">
+</head>
+<body>
+
+<div class="login-page">
+
+    <!-- Left side: branding image -->
+    <div class="login-left">
+        <img th:src="@{/images/patient-login-banner.png}" alt="VaxTrack">
+    </div>
+
+    <!-- Right side: login form card -->
+    <div class="login-right">
+        <div class="login-card">
+
+            <img th:src="@{/images/logo.png}" alt="VaxTrack Logo" class="card-logo">
+
+            <h1>Patient Login</h1>
+            <p class="subtitle">Welcome back! Log in to manage your vaccinations.</p>
+
+            <p th:if="${successMessage}" class="success-message"
+               style="background:#dcfce7;color:#166534;padding:10px;border-radius:8px;font-size:13px;margin-bottom:15px;"
+               th:text="${successMessage}">Success</p>
+
+            <p th:if="${param.error}" class="error-message">
+                Invalid ID/phone number or password.
+            </p>
+
+            <!-- Spring Security handles POST requests to /login/patient -->
+            <form th:action="@{/login/patient}" method="post">
+
+                <label for="username">National ID / Phone Number</label>
+                <input type="text" id="username" name="username" placeholder="Enter your ID number or phone" required>
+
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <img id="eyeIcon"
+                         th:src="@{/images/hide.png}"
+                         class="toggle-eye"
+                         alt="Toggle password visibility"
+                         onclick="togglePassword()">
+                </div>
+
+                <button type="submit">Login</button>
+
+            </form>
+
+            <p class="footer-text">
+                New patient? <a th:href="@{/register/patient}" style="color:#2563eb;font-weight:600;">Create an account</a>
+            </p>
+            <p class="footer-text">&copy; 2026 Smart Vaccination Management System</p>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Toggles password field between hidden and visible text,
+    // and swaps the eye icon to match.
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const isHidden = passwordInput.type === 'password';
+
+        passwordInput.type = isHidden ? 'text' : 'password';
+
+        eyeIcon.src = isHidden
+            ? /*[[@{/images/show.png}]]*/ '/images/show.png'
+            : /*[[@{/images/hide.png}]]*/ '/images/hide.png';
+    }
+</script>
+
+</body>
+</html>
