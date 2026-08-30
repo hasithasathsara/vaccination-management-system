@@ -14,7 +14,7 @@
         <p class="welcome-sub">Here's what's happening with vaccination across the country.</p>
     </div>
 
-    <!--  STAT CARDS  -->
+    <!-- ===== STAT CARDS ===== -->
     <div class="stat-grid">
         <div class="stat-card">
             <div class="stat-icon blue">👥</div>
@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <!--  VACCINE STATUS -->
+    <!-- ===== VACCINE STATUS ===== -->
     <div class="panel">
         <h3 class="panel-title">Vaccine Status</h3>
         <div class="vaccine-status-row">
@@ -74,7 +74,7 @@
         </div>
     </div>
 
-    <!--TWO-COLUMN TABLES -->
+    <!-- ===== TWO-COLUMN TABLES ===== -->
     <div class="two-col">
 
         <!-- Hospital Overview -->
@@ -114,6 +114,23 @@
                 <h3 class="panel-title">Recent Registered Patients</h3>
                 <a th:href="@{/admin/patients}" class="link-btn">View All Patients →</a>
             </div>
+
+            <table class="data-table" th:if="${not #lists.isEmpty(recentPatients)}">
+                <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>ID Number</th>
+                    <th>Age</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${recentPatients}">
+                    <td th:text="${p.fullName}">Name</td>
+                    <td th:text="${p.idNumber}">ID</td>
+                    <td th:text="${p.age}">0</td>
+                </tr>
+                </tbody>
+            </table>
 
             <p class="empty-state" th:if="${#lists.isEmpty(recentPatients)}">
                 No patients registered yet. This table will populate once patient registration is live.
