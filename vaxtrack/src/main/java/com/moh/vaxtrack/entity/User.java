@@ -24,8 +24,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    // @Email only checks the FORMAT (e.g. "a@b.com") — it still allows an empty
-    // value, since email is optional (nullable) in the database.
+
     @Email(message = "Enter a valid email address")
     @Column(name = "email")
     private String email;
@@ -43,6 +42,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "hospital_id", nullable = true)
     private Hospital hospital;
+
+
+    @Column(name = "district")
+    private String district;
 
     public User() {
     }
@@ -75,4 +78,6 @@ public class User {
     public void setStatus(UserStatus status) { this.status = status; }
     public Hospital getHospital() { return hospital; }
     public void setHospital(Hospital hospital) { this.hospital = hospital; }
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
 }

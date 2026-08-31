@@ -20,6 +20,10 @@ public class SubAdminForm {
 
     private String phoneNumber;
 
+    // Required — every Sub-Admin must be scoped to exactly one district
+    @NotBlank(message = "Please select an assigned district")
+    private String district;
+
     public String getUsername() {
         return username;
     }
@@ -42,5 +46,13 @@ public class SubAdminForm {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
     }
 }

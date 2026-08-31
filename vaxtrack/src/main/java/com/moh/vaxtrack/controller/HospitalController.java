@@ -3,6 +3,7 @@ package com.moh.vaxtrack.controller;
 import com.moh.vaxtrack.entity.Hospital;
 import com.moh.vaxtrack.entity.HospitalStatus;
 import com.moh.vaxtrack.repository.HospitalRepository;
+import com.moh.vaxtrack.util.SriLankaDistricts;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.stream.Collectors;
-
 
 @Controller
 @RequestMapping("/admin/hospitals")
@@ -24,11 +24,12 @@ public class HospitalController {
         this.hospitalRepository = hospitalRepository;
     }
 
-   //shows the full hospital list
+    // shows the full hospital list (active AND inactive).
     @GetMapping
     public String list(Model model) {
         model.addAttribute("hospitals", hospitalRepository.findAllByOrderByHospitalIdDesc());
         model.addAttribute("newHospital", new Hospital()); // empty object for the "Add Hospital" form
+        model.addAttribute("districtsByProvince", SriLankaDistricts.BY_PROVINCE);
         model.addAttribute("activePage", "hospitals");
         model.addAttribute("pageTitle", "Hospital Management");
         return "admin/hospitals";
@@ -46,7 +47,6 @@ public class HospitalController {
             return "redirect:/admin/hospitals";
         }
 
-
         newHospital.setStatus(HospitalStatus.ACTIVE);
         hospitalRepository.save(newHospital);
 
@@ -55,7 +55,8 @@ public class HospitalController {
         return "redirect:/admin/hospitals";
     }
 
-    //updates an existing hospital's details
+    // updates an existing hospital's details
+
     @PostMapping("/{id}/edit")
     public String edit(@PathVariable Long id,
                         @Valid @ModelAttribute("editHospital") Hospital form,
@@ -83,7 +84,7 @@ public class HospitalController {
         return "redirect:/admin/hospitals";
     }
 
-    //the "Soft Delete" from the spec
+    //  the "Soft Delete"
 
     @PostMapping("/{id}/toggle-status")
     public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -107,8 +108,6 @@ public class HospitalController {
 
         return "redirect:/admin/hospitals";
     }
-
-
 
     private String firstErrorMessage(BindingResult result) {
         return result.getFieldErrors().stream()
