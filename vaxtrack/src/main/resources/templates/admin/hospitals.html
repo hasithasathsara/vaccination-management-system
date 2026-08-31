@@ -8,7 +8,7 @@
 <body>
 <div layout:fragment="content">
 
-    <!-- ===== FLASH MESSAGE BANNER ===== -->
+    <!-- Flash banners -->
     <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
         <span th:text="${successMessage}">Success</span>
     </div>
@@ -16,14 +16,14 @@
         <span th:text="${errorMessage}">Error</span>
     </div>
 
-    <!-- ===== TOOLBAR ===== -->
+    <!-- Toolbar -->
     <div class="toolbar">
         <input type="text" id="hospitalSearch" class="search-input" data-table-target="hospitalTable"
                placeholder="Search by hospital name or district...">
         <button class="btn-primary" onclick="openModal('addHospitalModal')">+ Add Hospital</button>
     </div>
 
-    <!-- ===== HOSPITAL TABLE ===== -->
+    <!-- Hospital table -->
     <div class="panel">
         <table class="data-table" id="hospitalTable" th:if="${not #lists.isEmpty(hospitals)}">
             <thead>
@@ -66,7 +66,7 @@
         </p>
     </div>
 
-    <!-- ===== ADD HOSPITAL MODAL ===== -->
+    <!-- Add Hospital modal -->
     <div class="modal-overlay" id="addHospitalModal">
         <div class="modal">
             <div class="modal-header">
@@ -80,7 +80,12 @@
                 </div>
                 <div class="form-group">
                     <label>District</label>
-                    <input type="text" th:field="*{district}" placeholder="e.g. Colombo" required>
+                    <select th:field="*{district}" required>
+                        <option value="">Select district...</option>
+                        <optgroup th:each="entry : ${districtsByProvince}" th:label="${entry.key}">
+                            <option th:each="d : ${entry.value}" th:value="${d}" th:text="${d}"></option>
+                        </optgroup>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Daily Capacity</label>
@@ -94,7 +99,7 @@
         </div>
     </div>
 
-    <!-- ===== EDIT HOSPITAL MODALS (one per hospital, pre-filled) ===== -->
+    <!-- Edit Hospital modals, one per hospital, pre-filled -->
     <div class="modal-overlay" th:id="'editHospitalModal' + ${h.hospitalId}" th:each="h : ${hospitals}">
         <div class="modal">
             <div class="modal-header">
@@ -108,7 +113,13 @@
                 </div>
                 <div class="form-group">
                     <label>District</label>
-                    <input type="text" name="district" th:value="${h.district}" required>
+                    <select name="district" required>
+                        <option value="">Select district...</option>
+                        <optgroup th:each="entry : ${districtsByProvince}" th:label="${entry.key}">
+                            <option th:each="d : ${entry.value}" th:value="${d}" th:text="${d}"
+                                    th:selected="${d == h.district}"></option>
+                        </optgroup>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Daily Capacity</label>

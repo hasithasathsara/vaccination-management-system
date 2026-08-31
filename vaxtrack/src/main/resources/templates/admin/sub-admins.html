@@ -8,7 +8,7 @@
 <body>
 <div layout:fragment="content">
 
-    <!-- ===== FLASH MESSAGE BANNER ===== -->
+    <!-- Flash banners -->
     <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
         <span th:text="${successMessage}">Success</span>
     </div>
@@ -16,19 +16,20 @@
         <span th:text="${errorMessage}">Error</span>
     </div>
 
-    <!-- ===== TOOLBAR ===== -->
+    <!-- Toolbar -->
     <div class="toolbar">
         <input type="text" id="subAdminSearch" class="search-input" data-table-target="subAdminTable"
-               placeholder="Search by username or email...">
+               placeholder="Search by username, email, or district...">
         <button class="btn-primary" onclick="openModal('addSubAdminModal')">+ Add Sub Admin</button>
     </div>
 
-    <!-- ===== SUB ADMIN TABLE ===== -->
+    <!-- Sub Admin table -->
     <div class="panel">
         <table class="data-table" id="subAdminTable" th:if="${not #lists.isEmpty(subAdmins)}">
             <thead>
             <tr>
                 <th>Username</th>
+                <th>District</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Status</th>
@@ -38,6 +39,7 @@
             <tbody>
             <tr th:each="s : ${subAdmins}">
                 <td th:text="${s.username}">username</td>
+                <td th:text="${s.district} ?: '—'">District</td>
                 <td th:text="${s.email} ?: '—'">email</td>
                 <td th:text="${s.phoneNumber} ?: '—'">phone</td>
                 <td>
@@ -63,7 +65,7 @@
         </p>
     </div>
 
-    <!-- ===== ADD SUB ADMIN MODAL ===== -->
+    <!-- Add Sub Admin modal -->
     <div class="modal-overlay" id="addSubAdminModal">
         <div class="modal">
             <div class="modal-header">
@@ -76,6 +78,15 @@
                     <input type="text" th:field="*{username}" placeholder="e.g. colombo.subadmin" required>
                 </div>
                 <div class="form-group">
+                    <label>Assigned District</label>
+                    <select th:field="*{district}" required>
+                        <option value="">Select district...</option>
+                        <optgroup th:each="entry : ${districtsByProvince}" th:label="${entry.key}">
+                            <option th:each="d : ${entry.value}" th:value="${d}" th:text="${d}"></option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Email <span class="optional-tag">(optional)</span></label>
                     <input type="email" th:field="*{email}" placeholder="e.g. subadmin@moh.gov.lk">
                 </div>
@@ -84,9 +95,9 @@
                     <input type="text" th:field="*{phoneNumber}" placeholder="e.g. 0771234567">
                 </div>
                 <p class="modal-note">
-                    A secure temporary password will be generated automatically. You'll see it
-                    once on the next screen — copy it and share it with the Sub-Admin, since it
-                    can't be shown again after this.
+                    The assigned district cannot be changed after creation. A secure temporary
+                    password will be generated automatically — you'll see it once on the next
+                    screen, so copy it and share it with the Sub-Admin.
                 </p>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeModal('addSubAdminModal')">Cancel</button>
@@ -96,8 +107,7 @@
         </div>
     </div>
 
-    <!-- ===== ONE-TIME GENERATED CREDENTIALS MODAL ===== -->
-    <!-- Only ever appears immediately after a successful "Add Sub Admin" — never again. -->
+    <!-- One-time generated credentials modal -->
     <div class="modal-overlay no-outside-close" id="credentialsModal" th:if="${generatedPassword}">
         <div class="modal">
             <div class="modal-header">
@@ -124,7 +134,7 @@
         </div>
     </div>
 
-    <!-- Auto-opens the credentials modal the moment this page loads, only when a new account was just created. -->
+    <!-- Auto-opens the credentials modal the moment this page loads, only when a new account was just created -->
     <script th:if="${generatedPassword}">
         document.addEventListener("DOMContentLoaded", function () {
             openModal('credentialsModal');
