@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{subadmin/layout}">
+<head>
+    <title>Vaccination Event Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input type="text" id="eventSearch" class="search-input" data-table-target="eventTable"
+               placeholder="Search by hospital or vaccine...">
+        <button class="btn-primary" onclick="openModal('addEventModal')">+ Add Vaccination Event</button>
+    </div>
+
+    <!-- Events table -->
+    <div class="panel">
+        <table class="data-table" id="eventTable" th:if="${not #lists.isEmpty(events)}">
+            <thead>
+            <tr>
+                <th>Hospital</th>
+                <th>Vaccine</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Capacity</th>
+                <th>Staff</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${events}">
+                <td th:text="${e.hospital.name}">Hospital</td>
+                <td th:text="${e.vaccine.brandName}">Vaccine</td>
+                <td th:text="${e.eventDate}">Date</td>
+                <td th:text="${e.timeSlot}">Time</td>
+                <td th:text="${e.capacity}">0</td>
+                <td th:text="${#lists.size(assignedNurseIdsByEvent.get(e.eventId))} + ' assigned'">0 assigned</td>
+                <td>
+                    <span class="badge" th:classappend="${e.status.name() == 'SCHEDULED'} ? 'active' : 'inactive'"
+                          th:text="${e.status}">SCHEDULED</span>
+                </td>
+                <td class="actions-cell">
+                    <th:block th:if="${e.status.name() == 'SCHEDULED' and not e.eventDate.isBefore(today)}">
+                        <button class="btn-icon" title="Edit"
+                                th:onclick="'openModal(\'editEventModal' + ${e.eventId} + '\')'">✎</button>
+                        <form th:action="@{/subadmin/events/{id}/cancel(id=${e.eventId})}" method="post" class="inline-form">
+                            <button type="submit" class="btn-icon" title="Cancel"
+                                    onclick="return confirm('Cancel this event? This cannot be undone.')">🚫</button>
+                        </form>
+                    </th:block>
+                    <span th:unless="${e.status.name() == 'SCHEDULED' and not e.eventDate.isBefore(today)}"
+                          style="color:#9ca3af;font-size:12px;">Locked</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(events)}">
+            No vaccination events scheduled yet. Click "Add Vaccination Event" to create the first one.
+        </p>
+    </div>
+
+    <!-- Add Event modal -->
+    <div class="modal-overlay" id="addEventModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Schedule Vaccination Event</h3>
+                <button class="modal-close" onclick="closeModal('addEventModal')">&times;</button>
+            </div>
+            <form th:action="@{/subadmin/events/add}" th:object="${newEvent}" method="post">
+                <div class="form-group">
+                    <label>Hospital</label>
+                    <select th:field="*{hospitalId}" required onchange="toggleNurseGroups(this.value, 'nurseGroupsAdd')">
+                        <option value="">Select hospital in your district...</option>
+                        <option th:each="h : ${hospitals}" th:value="${h.hospitalId}"
+                                th:text="${h.name} + ' (capacity ' + ${h.dailyCapacity} + ')'"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vaccine</label>
+                    <select th:field="*{vaccineId}" required>
+                        <option value="">Select vaccine...</option>
+                        <option th:each="v : ${vaccines}" th:value="${v.vaccineId}" th:text="${v.brandName}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" th:field="*{eventDate}" th:min="${today}" required>
+                </div>
+                <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" th:field="*{startTime}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input type="time" th:field="*{endTime}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Capacity</label>
+                    <input type="number" th:field="*{capacity}" min="1" placeholder="e.g. 100" required>
+                </div>
+
+                <!-- Nurse checklist — one hidden group per hospital, only the selected one shows -->
+                <div class="form-group">
+                    <label>Assign Nurses <span class="optional-tag">(optional — pick a hospital first)</span></label>
+                    <div id="nurseGroupsAdd">
+                        <div class="nurse-group" th:each="h : ${hospitals}"
+                             th:with="hospitalNurses=${nursesByHospital.get(h.hospitalId)}"
+                             th:attr="data-hospital-id=${h.hospitalId}" style="display:none;">
+                            <p th:if="${hospitalNurses == null or #lists.isEmpty(hospitalNurses)}"
+                               class="empty-state" style="padding:8px 0;margin:0;">
+                                No staff assigned to this hospital yet.
+                            </p>
+                            <label th:each="n : ${hospitalNurses}"
+                                   style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px;">
+                                <input type="checkbox" name="nurseIds" th:value="${n.userId}" style="width:auto;">
+                                <span th:text="${n.username}">nurse</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="modal-note">
+                    Combined capacity of all events at this hospital, on this date, cannot exceed
+                    that hospital's daily capacity.
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Schedule Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Event modals — only rendered for future, scheduled events -->
+    <div class="modal-overlay" th:id="'editEventModal' + ${e.eventId}"
+         th:each="e : ${events}" th:if="${e.status.name() == 'SCHEDULED' and not e.eventDate.isBefore(today)}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Vaccination Event</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'editEventModal' + ${e.eventId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{/subadmin/events/{id}/edit(id=${e.eventId})}" method="post">
+                <div class="form-group">
+                    <label>Hospital</label>
+                    <input type="text" th:value="${e.hospital.name}" disabled
+                           style="background:#f3f4f6;color:#6b7280;">
+                    <span class="optional-tag">Hospital can't be changed — cancel and create a new event instead.</span>
+                </div>
+                <div class="form-group">
+                    <label>Vaccine</label>
+                    <select name="vaccineId" required>
+                        <option th:each="v : ${vaccines}" th:value="${v.vaccineId}" th:text="${v.brandName}"
+                                th:selected="${v.vaccineId == e.vaccine.vaccineId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" name="eventDate" th:value="${e.eventDate}" th:min="${today}" required>
+                </div>
+                <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" name="startTime" th:value="${#strings.arraySplit(e.timeSlot, ' - ')[0]}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input type="time" name="endTime" th:value="${#strings.arraySplit(e.timeSlot, ' - ')[1]}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Capacity</label>
+                    <input type="number" name="capacity" th:value="${e.capacity}" min="1" required>
+                </div>
+
+                <!-- Nurse checklist for THIS event's hospital only, pre-checked with current assignments -->
+                <div class="form-group"
+                     th:with="hospitalNurses=${nursesByHospital.get(e.hospital.hospitalId)}, assignedIds=${assignedNurseIdsByEvent.get(e.eventId)}">
+                    <label>Assign Nurses <span class="optional-tag">(optional)</span></label>
+                    <p th:if="${hospitalNurses == null or #lists.isEmpty(hospitalNurses)}"
+                       class="empty-state" style="padding:8px 0;margin:0;">
+                        No staff assigned to this hospital yet.
+                    </p>
+                    <label th:each="n : ${hospitalNurses}"
+                           style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px;">
+                        <input type="checkbox" name="nurseIds" th:value="${n.userId}" style="width:auto;"
+                               th:checked="${assignedIds.contains(n.userId)}">
+                        <span th:text="${n.username}">nurse</span>
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'editEventModal' + ${e.eventId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Shows only the nurse checklist matching the currently selected hospital
+    function toggleNurseGroups(selectedHospitalId, containerId) {
+        document.querySelectorAll('#' + containerId + ' .nurse-group').forEach(function (group) {
+            group.style.display = (group.dataset.hospitalId === selectedHospitalId) ? 'block' : 'none';
+        });
+    }
+</script>
+</body>
+</html>
