@@ -2,6 +2,7 @@ package com.moh.vaxtrack.config;
 
 import com.moh.vaxtrack.security.CustomUserDetailsService;
 import com.moh.vaxtrack.security.PatientUserDetailsService;
+import com.moh.vaxtrack.security.StaffLoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -16,11 +17,14 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final PatientUserDetailsService patientUserDetailsService;
+    private final StaffLoginSuccessHandler staffLoginSuccessHandler;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                           PatientUserDetailsService patientUserDetailsService) {
+                          PatientUserDetailsService patientUserDetailsService,
+                          StaffLoginSuccessHandler staffLoginSuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.patientUserDetailsService = patientUserDetailsService;
+        this.staffLoginSuccessHandler = staffLoginSuccessHandler;
     }
 
     // Shared password hashing, used by both staff and patient login
@@ -74,7 +78,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Staff / admin security rules — checked SECOND, catches everything else
+    // Staff / admin security rules — checked SECOND, catches everything else.
+    // Every staff role (Super Admin, Sub-Admin, Inventory Manager, Medical Staff)
+    // shares this ONE login page, but lands on a DIFFERENT dashboard afterward —
+    // see StaffLoginSuccessHandler.
     @Bean
     @Order(2)
     public SecurityFilterChain staffSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -83,12 +90,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/staff", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/subadmin/**").hasRole("SUB_ADMIN")
+                        .requestMatchers("/inventory/**").hasRole("INVENTORY_MANAGER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login/staff")
                         .loginProcessingUrl("/login/staff")
-                        .defaultSuccessUrl("/admin/dashboard", true)
+                        .successHandler(staffLoginSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout

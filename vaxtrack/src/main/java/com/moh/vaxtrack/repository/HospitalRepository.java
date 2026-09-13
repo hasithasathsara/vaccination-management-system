@@ -10,6 +10,7 @@ import java.util.List;
 
 @Repository
 
+
 public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
 
@@ -20,5 +21,8 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
 
     List<Hospital> findAllByOrderByHospitalIdDesc();
+
+
+    List<Hospital> findByDistrictAndStatusOrderByName(String district, HospitalStatus status);
 
 }
