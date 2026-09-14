@@ -10,19 +10,14 @@ import java.util.Optional;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    // Full patient list, newest first
     List<Patient> findAllByOrderByPatientIdDesc();
 
-    // Latest 5 for the dashboard
     List<Patient> findTop5ByOrderByPatientIdDesc();
 
-    // Blocks duplicate registrations
     boolean existsByIdNumber(String idNumber);
 
-    // Login lookup by ID number
     Optional<Patient> findByIdNumber(String idNumber);
 
-    // Login lookup by phone number
     Optional<Patient> findByPhoneNumber(String phoneNumber);
 
 }
