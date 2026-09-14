@@ -5,6 +5,7 @@ import com.moh.vaxtrack.entity.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +26,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByPatient_PatientIdAndStatusNotOrderByBookedAtDesc(Long patientId, AppointmentStatus status);
 
     List<Appointment> findByPatient_PatientIdAndStatusOrderByBookedAtDesc(Long patientId, AppointmentStatus status);
+
+    List<Appointment> findByEvent_Hospital_HospitalIdAndEvent_EventDateOrderByEvent_TimeSlotAsc(
+            Long hospitalId, LocalDate eventDate);
 
 }
