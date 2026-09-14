@@ -1,54 +1,76 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{patient/layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>My Dashboard - VaxTrack</title>
-    <link rel="stylesheet" th:href="@{/css/patient-shared.css}">
-    <link rel="stylesheet" th:href="@{/css/patient-dashboard.css}">
+    <title>My Dashboard</title>
 </head>
 <body>
+<div layout:fragment="content">
 
-<div class="dashboard-welcome">
-    <h1>Welcome, <span th:text="${patient.fullName}">Patient</span></h1>
-    <p>Here's your digital vaccination ID.</p>
+    <div class="page-header" style="margin-bottom:24px;">
+        <p class="welcome-text" style="color:var(--text-secondary);margin:0;">Welcome back,</p>
+        <h2 style="margin:2px 0 0;font-size:26px;" th:text="${patient.fullName}">Patient</h2>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- Digital ID card -->
+        <div class="digital-id-card">
+            <div class="id-card-header">
+                <img th:src="@{/images/logo.png}" alt="VaxTrack" class="id-card-logo">
+                <span class="id-card-title">VaxTrack Digital ID</span>
+            </div>
+            <span class="id-card-name" th:text="${patient.fullName}">Name</span>
+            <div class="id-card-grid">
+                <div>
+                    <span class="id-card-field-label" th:text="${patient.idType}">ID Type</span>
+                    <span class="id-card-field-value" th:text="${patient.idNumber}">ID Number</span>
+                </div>
+                <div>
+                    <span class="id-card-field-label">Age</span>
+                    <span class="id-card-field-value" th:text="${patient.age}">0</span>
+                </div>
+                <div>
+                    <span class="id-card-field-label">Phone</span>
+                    <span class="id-card-field-value" th:text="${patient.phoneNumber}">Phone</span>
+                </div>
+            </div>
+            <div class="id-card-footer">
+                QR code shown below once you have an upcoming appointment.
+            </div>
+        </div>
+
+        <!-- Right column -->
+        <div>
+            <div class="dashboard-panel" style="margin-bottom:20px;">
+                <h3>Upcoming Appointment</h3>
+
+                <div th:if="${upcomingAppointment}" class="appointment-card">
+                    <div class="appointment-card-details">
+                        <strong th:text="${upcomingAppointment.event.hospital.name}">Hospital</strong>
+                        <span th:text="${upcomingAppointment.event.vaccine.brandName} + ' — Dose ' + ${upcomingAppointment.doseNumber}">Vaccine</span>
+                        <span th:text="${upcomingAppointment.event.eventDate} + ' • ' + ${upcomingAppointment.event.timeSlot}">Date</span>
+                    </div>
+                    <a th:href="@{/patient/my-bookings}" class="btn-nav-filled" style="white-space:nowrap;">View QR →</a>
+                </div>
+
+                <p class="empty-state-public" th:unless="${upcomingAppointment}">
+                    No upcoming appointments.
+                    <a th:href="@{/patient/book-appointment}" style="color:var(--primary-blue);font-weight:700;">Book one now →</a>
+                </p>
+            </div>
+
+            <div class="dashboard-panel">
+                <h3>Notifications</h3>
+                <p class="empty-state-public">
+                    You're all caught up — no notifications yet.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
 </div>
-
-<!-- Real digital ID card, same component used in the registration preview -->
-<div class="digital-id-card">
-    <div class="id-card-header">
-        <img th:src="@{/images/logo.png}" alt="VaxTrack" class="id-card-logo">
-        <span class="id-card-title">VaxTrack Digital ID</span>
-    </div>
-
-    <span class="id-card-name" th:text="${patient.fullName}">Name</span>
-
-    <div class="id-card-grid">
-        <div>
-            <span class="id-card-field-label" th:text="${patient.idType}">ID Type</span>
-            <span class="id-card-field-value" th:text="${patient.idNumber}">ID Number</span>
-        </div>
-        <div>
-            <span class="id-card-field-label">Age</span>
-            <span class="id-card-field-value" th:text="${patient.age}">0</span>
-        </div>
-        <div>
-            <span class="id-card-field-label">Phone</span>
-            <span class="id-card-field-value" th:text="${patient.phoneNumber}">Phone</span>
-        </div>
-    </div>
-
-    <div class="id-card-footer">
-        QR code unlocks once your first appointment is booked.
-    </div>
-</div>
-
-<p class="coming-soon-note">
-    Booking, appointment history, and certificates are coming in a future update.
-</p>
-
-<form th:action="@{/patient-logout}" method="post" class="logout-form">
-    <button type="submit">Log Out</button>
-</form>
-
 </body>
 </html>
