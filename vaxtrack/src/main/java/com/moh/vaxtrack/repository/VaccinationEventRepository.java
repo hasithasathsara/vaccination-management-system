@@ -20,12 +20,14 @@ public interface VaccinationEventRepository extends JpaRepository<VaccinationEve
     List<VaccinationEvent> findTop5ByHospital_DistrictAndStatusAndEventDateGreaterThanEqualOrderByEventDateAsc(
             String district, VaccinationEventStatus status, LocalDate today);
 
-
     @Query("SELECT COALESCE(SUM(e.capacity), 0) FROM VaccinationEvent e " +
             "WHERE e.hospital.hospitalId = :hospitalId AND e.eventDate = :eventDate " +
             "AND e.status = 'SCHEDULED' AND e.eventId <> :excludeEventId")
     int sumScheduledCapacity(@Param("hospitalId") Long hospitalId,
                               @Param("eventDate") LocalDate eventDate,
                               @Param("excludeEventId") Long excludeEventId);
+
+    List<VaccinationEvent> findByStatusAndEventDateGreaterThanEqualOrderByEventDateAsc(
+            VaccinationEventStatus status, LocalDate today);
 
 }
