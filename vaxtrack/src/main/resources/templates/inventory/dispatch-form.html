@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{inventory/layout}">
+<head>
+    <title>Dispatch Stock</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="panel" style="max-width:520px;">
+        <h3 class="panel-title">Confirm & Dispatch</h3>
+        <p class="modal-note">
+            Review the details below, then confirm to deduct this amount from national
+            stock and credit it to the hospital's own inventory — both happen together,
+            in one step, and cannot be partially completed.
+        </p>
+
+        <div class="credentials-box" style="padding:0;margin-bottom:18px;">
+            <div class="credential-row">
+                <span class="credential-label">Hospital</span>
+                <span class="credential-value" th:text="${stockRequest.hospital.name}">Hospital</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Vaccine</span>
+                <span class="credential-value" th:text="${stockRequest.vaccine.brandName}">Vaccine</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Requested Quantity</span>
+                <span class="credential-value" th:text="${stockRequest.requestedQuantity} + ' doses'">0 doses</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Available National Stock</span>
+                <span class="credential-value" th:text="${availableStock} + ' doses'">0 doses</span>
+            </div>
+        </div>
+
+        <form th:action="@{/inventory/requests/{id}/dispatch(id=${stockRequest.requestId})}" method="post">
+            <div class="form-group">
+                <label>Dispatch Quantity (Doses)</label>
+                <input type="number" name="dispatchQuantity" th:value="${stockRequest.requestedQuantity}" min="1" required>
+                <span class="optional-tag">Defaults to the requested amount — adjust if needed.</span>
+            </div>
+            <p class="modal-note" style="background:#fdeaea;color:#b91c1c;">
+                If the amount entered exceeds available national stock, this request will be
+                automatically rejected instead of dispatched.
+            </p>
+            <div class="modal-footer" style="justify-content:space-between;">
+                <a th:href="@{/inventory/requests}" class="btn-secondary" style="text-decoration:none;">Cancel</a>
+                <button type="submit" class="btn-primary">Confirm &amp; Dispatch</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>
