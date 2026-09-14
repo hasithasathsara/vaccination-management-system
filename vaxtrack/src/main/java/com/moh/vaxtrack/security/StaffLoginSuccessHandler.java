@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-// Sends each staff role to its OWN dashboard after login, instead of
-// everyone landing on /admin/dashboard (which only Super Admin can see).
 @Component
 public class StaffLoginSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -19,21 +17,18 @@ public class StaffLoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                          Authentication authentication) throws IOException, ServletException {
 
-        boolean isSuperAdmin = hasRole(authentication, "ROLE_SUPER_ADMIN");
-        boolean isSubAdmin = hasRole(authentication, "ROLE_SUB_ADMIN");
-
-        if (isSuperAdmin) {
+        if (hasRole(authentication, "ROLE_SUPER_ADMIN")) {
             response.sendRedirect("/admin/dashboard");
-        } else if (isSubAdmin) {
+        } else if (hasRole(authentication, "ROLE_SUB_ADMIN")) {
             response.sendRedirect("/subadmin/dashboard");
+        } else if (hasRole(authentication, "ROLE_INVENTORY_MANAGER")) {
+            response.sendRedirect("/inventory/dashboard");
         } else {
-            // Inventory Manager and Medical Staff dashboards don't exist yet.
-            // TODO: add their redirects here once those deliveries are built.
+            // TODO: add its redirect here once that delivery is built.
             response.sendRedirect("/login/staff?dashboardComingSoon");
         }
     }
 
-    // Checks if the logged-in user has a specific role
     private boolean hasRole(Authentication authentication, String roleName) {
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             if (authority.getAuthority().equals(roleName)) {
