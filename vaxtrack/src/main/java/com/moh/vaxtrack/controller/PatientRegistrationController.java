@@ -27,14 +27,12 @@ public class PatientRegistrationController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Show the registration form
     @GetMapping
     public String showForm(Model model) {
         model.addAttribute("registrationForm", new PatientRegistrationForm());
         return "patient/register";
     }
 
-    // Process the registration form
     @PostMapping
     public String register(@Valid @ModelAttribute("registrationForm") PatientRegistrationForm form,
                             BindingResult result,
@@ -46,19 +44,16 @@ public class PatientRegistrationController {
             return "patient/register";
         }
 
-        // Passwords must match
         if (!form.getPassword().equals(form.getConfirmPassword())) {
             model.addAttribute("errorMessage", "Passwords do not match.");
             return "patient/register";
         }
 
-        // Block duplicate ID number registration
         if (patientRepository.existsByIdNumber(form.getIdNumber())) {
             model.addAttribute("errorMessage", "An account with this ID number already exists.");
             return "patient/register";
         }
 
-        // Build and save the new patient
         Patient patient = new Patient();
         patient.setIdType(IdType.valueOf(form.getIdType()));
         patient.setIdNumber(form.getIdNumber());
@@ -76,7 +71,6 @@ public class PatientRegistrationController {
         return "redirect:/login/patient";
     }
 
-    // Collect validation errors
     private String firstErrorMessage(BindingResult result) {
         return result.getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
