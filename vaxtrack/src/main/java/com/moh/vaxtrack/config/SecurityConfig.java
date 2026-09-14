@@ -20,8 +20,8 @@ public class SecurityConfig {
     private final StaffLoginSuccessHandler staffLoginSuccessHandler;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                          PatientUserDetailsService patientUserDetailsService,
-                          StaffLoginSuccessHandler staffLoginSuccessHandler) {
+                           PatientUserDetailsService patientUserDetailsService,
+                           StaffLoginSuccessHandler staffLoginSuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.patientUserDetailsService = patientUserDetailsService;
         this.staffLoginSuccessHandler = staffLoginSuccessHandler;
