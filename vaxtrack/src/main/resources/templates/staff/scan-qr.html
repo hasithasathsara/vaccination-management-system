@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{staff/layout}">
+<head>
+    <title>Scan QR</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
+    <p th:if="${successMessage}" class="flash-banner success" th:text="${successMessage}">Success</p>
+
+    <div class="panel" style="max-width:480px;margin:0 auto;">
+
+        <div id="scannerArea" style="display:none;text-align:center;margin-bottom:16px;">
+            <video id="scannerVideo" style="width:100%;border-radius:12px;" playsinline></video>
+            <canvas id="scannerCanvas" style="display:none;"></canvas>
+            <button type="button" class="btn-secondary" style="margin-top:10px;" onclick="stopScanner()">Stop Camera</button>
+        </div>
+
+        <button type="button" class="btn-primary" style="width:100%;margin-bottom:20px;" onclick="startScanner()">
+            📷 Start Scanning (mobile camera)
+        </button>
+
+        <p style="text-align:center;color:#9ca3af;font-size:12.5px;margin:10px 0;">— or —</p>
+
+        <form th:action="@{/staff/scan-qr}" method="post">
+            <div class="form-group">
+                <label>Enter Booking Code</label>
+                <input type="text" id="codeInput" name="code" placeholder="e.g. VXT-7K3PQ9RM2Z" required
+                       style="text-transform:uppercase;">
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">Verify Patient</button>
+        </form>
+
+        <p class="modal-note" style="margin-top:16px;">
+            No camera on this device? Just type the code shown on the patient's booking screen.
+        </p>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
+<script th:src="@{/js/qr-scanner.js}"></script>
+</body>
+</html>
