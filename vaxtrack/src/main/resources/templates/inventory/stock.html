@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{inventory/layout}">
+<head>
+    <title>Inventory Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input type="text" id="stockSearch" class="search-input" data-table-target="stockTable"
+               placeholder="Search by vaccine or batch number...">
+        <button class="btn-primary" onclick="openModal('addStockModal')">+ Add National Stock</button>
+    </div>
+
+    <!-- Stock table -->
+    <div class="panel">
+        <table class="data-table" id="stockTable" th:if="${not #lists.isEmpty(stockBatches)}">
+            <thead>
+            <tr>
+                <th>Vaccine</th>
+                <th>Batch Number</th>
+                <th>Expiry Date</th>
+                <th>Quantity Remaining</th>
+                <th>Received On</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${stockBatches}">
+                <td th:text="${s.vaccine.brandName}">Vaccine</td>
+                <td th:text="${s.batchNumber}">Batch</td>
+                <td th:text="${s.expiryDate}">Expiry</td>
+                <td th:text="${s.quantity} + ' / ' + ${s.originalQuantity}">0 / 0</td>
+                <td th:text="${#temporals.format(s.receivedDate, 'dd MMM yyyy')}">Date</td>
+                <td class="actions-cell">
+                    <th:block th:if="${s.untouched}">
+                        <button class="btn-icon" title="Edit"
+                                th:onclick="'openModal(\'editStockModal' + ${s.stockId} + '\')'">✎</button>
+                        <form th:action="@{/inventory/stock/{id}/delete(id=${s.stockId})}" method="post" class="inline-form">
+                            <button type="submit" class="btn-icon" title="Delete"
+                                    onclick="return confirm('Remove this stock batch? This cannot be undone.')">🗑</button>
+                        </form>
+                    </th:block>
+                    <span th:unless="${s.untouched}" style="color:#9ca3af;font-size:12px;">Dispatched from</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(stockBatches)}">
+            No stock batches recorded yet. Click "Add National Stock" to log the first shipment.
+        </p>
+    </div>
+
+    <!-- Add National Stock modal -->
+    <div class="modal-overlay" id="addStockModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add National Stock</h3>
+                <button class="modal-close" onclick="closeModal('addStockModal')">&times;</button>
+            </div>
+            <form th:action="@{/inventory/stock/add}" th:object="${newStock}" method="post">
+                <div class="form-group">
+                    <label>Vaccine</label>
+                    <select th:field="*{vaccineId}" required>
+                        <option value="">Select vaccine...</option>
+                        <option th:each="v : ${vaccines}" th:value="${v.vaccineId}" th:text="${v.brandName}"></option>
+                    </select>
+                    <span class="optional-tag">Only vaccines the Super Admin has added appear here.</span>
+                </div>
+                <div class="form-group">
+                    <label>Batch Number</label>
+                    <input type="text" th:field="*{batchNumber}" placeholder="e.g. BN-2026-0417" required>
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input type="date" th:field="*{expiryDate}" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity (Doses)</label>
+                    <input type="number" th:field="*{quantity}" min="1" placeholder="e.g. 10000" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addStockModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit modals — only for batches nothing has been dispatched from yet -->
+    <div class="modal-overlay" th:id="'editStockModal' + ${s.stockId}"
+         th:each="s : ${stockBatches}" th:if="${s.untouched}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Stock Batch</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'editStockModal' + ${s.stockId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{/inventory/stock/{id}/edit(id=${s.stockId})}" method="post">
+                <div class="form-group">
+                    <label>Vaccine</label>
+                    <input type="text" th:value="${s.vaccine.brandName}" disabled style="background:#f3f4f6;color:#6b7280;">
+                    <span class="optional-tag">Vaccine can't be changed — delete and re-add instead.</span>
+                </div>
+                <div class="form-group">
+                    <label>Batch Number</label>
+                    <input type="text" name="batchNumber" th:value="${s.batchNumber}" required>
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input type="date" name="expiryDate" th:value="${s.expiryDate}" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity (Doses)</label>
+                    <input type="number" name="quantity" th:value="${s.quantity}" min="1" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'editStockModal' + ${s.stockId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
