@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,8 +32,21 @@
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
             <span id="themeIcon">🌙</span>
         </button>
-        <a th:href="@{/login/patient}" class="btn-nav-outline">Login</a>
-        <a th:href="@{/register/patient}" class="btn-nav-filled">Register</a>
+
+        <!-- Logged in as a patient already: show Dashboard + Logout instead of Login/Register -->
+        <th:block sec:authorize="hasRole('PATIENT')">
+            <a th:href="@{/patient/dashboard}" class="btn-nav-outline">Dashboard</a>
+            <form th:action="@{/patient-logout}" method="post" style="margin:0;">
+                <button type="submit" class="btn-nav-filled" style="border:none;cursor:pointer;">Logout</button>
+            </form>
+        </th:block>
+
+        <!-- Not logged in at all: show the normal Login/Register buttons -->
+        <th:block sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login/patient}" class="btn-nav-outline">Login</a>
+            <a th:href="@{/register/patient}" class="btn-nav-filled">Register</a>
+        </th:block>
+
         <button class="navbar-hamburger" id="navbarHamburger" aria-label="Toggle menu">☰</button>
     </div>
 </header>

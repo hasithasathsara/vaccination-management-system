@@ -6,6 +6,7 @@ import com.moh.vaxtrack.repository.HospitalRepository;
 import com.moh.vaxtrack.repository.VaccinationEventRepository;
 import com.moh.vaxtrack.security.PatientPrincipal;
 import com.moh.vaxtrack.util.QrCodeGenerator;
+import com.moh.vaxtrack.util.SriLankaDistricts;
 import com.google.zxing.WriterException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,9 +21,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
-// Patient-facing appointment booking — district -> hospital -> event cascade
 @Controller
 @RequestMapping("/patient/book-appointment")
 public class PatientAppointmentController {
@@ -42,7 +41,6 @@ public class PatientAppointmentController {
         this.qrCodeGenerator = qrCodeGenerator;
     }
 
-    // Shows the booking form with all districts/hospitals/events preloaded for the cascade
     @GetMapping
     public String showForm(@AuthenticationPrincipal PatientPrincipal principal, Model model) {
 
@@ -50,18 +48,11 @@ public class PatientAppointmentController {
         List<VaccinationEvent> upcomingEvents = eventRepository
                 .findByStatusAndEventDateGreaterThanEqualOrderByEventDateAsc(VaccinationEventStatus.SCHEDULED, LocalDate.now());
 
-        // Distinct districts that actually have an active hospital, in a stable order
-        List<String> districts = activeHospitals.stream()
-                .map(Hospital::getDistrict)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+        model.addAttribute("districtsByProvince", SriLankaDistricts.BY_PROVINCE);
 
-        model.addAttribute("districts", districts);
         model.addAttribute("hospitals", activeHospitals);
         model.addAttribute("events", upcomingEvents);
 
-        // Remaining capacity per event, computed fresh each time — never stored, always live
         Map<Long, Long> remainingByEvent = new HashMap<>();
         for (VaccinationEvent event : upcomingEvents) {
             long booked = appointmentRepository.countByEvent_EventIdAndStatus(event.getEventId(), AppointmentStatus.BOOKED);
@@ -74,7 +65,6 @@ public class PatientAppointmentController {
         return "patient/book-appointment";
     }
 
-    // Confirms a booking
     @PostMapping
     public String bookAppointment(@AuthenticationPrincipal PatientPrincipal principal,
                                    @RequestParam Long hospitalId,
@@ -97,7 +87,6 @@ public class PatientAppointmentController {
             return "redirect:/patient/book-appointment";
         }
 
-        // Block a second active booking for the same vaccine
         boolean alreadyBooked = appointmentRepository.findByPatient_PatientIdAndEvent_Vaccine_VaccineIdAndStatus(
                 patient.getPatientId(), event.getVaccine().getVaccineId(), AppointmentStatus.BOOKED).isPresent();
         if (alreadyBooked) {
@@ -130,7 +119,6 @@ public class PatientAppointmentController {
         return "redirect:/patient/book-appointment";
     }
 
-    // Serves the QR code as a PNG image, rebuilt fresh from the stored text every time
     @GetMapping("/{id}/qr-image")
     @ResponseBody
     public ResponseEntity<byte[]> qrImage(@AuthenticationPrincipal PatientPrincipal principal,
@@ -138,7 +126,6 @@ public class PatientAppointmentController {
 
         Appointment appointment = appointmentRepository.findById(id).orElse(null);
 
-        // Only the owning patient can ever see their own QR image
         if (appointment == null || !appointment.getPatient().getPatientId().equals(principal.getPatient().getPatientId())) {
             return ResponseEntity.notFound().build();
         }

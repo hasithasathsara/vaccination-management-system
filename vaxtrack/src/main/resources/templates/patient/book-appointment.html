@@ -22,7 +22,9 @@
                 <label>District</label>
                 <select id="districtSelect" onchange="onDistrictChange()" required>
                     <option value="">Select your district...</option>
-                    <option th:each="d : ${districts}" th:value="${d}" th:text="${d}"></option>
+                    <optgroup th:each="entry : ${districtsByProvince}" th:label="${entry.key}">
+                        <option th:each="d : ${entry.value}" th:value="${d}" th:text="${d}"></option>
+                    </optgroup>
                 </select>
             </div>
 
@@ -33,6 +35,9 @@
                     <option th:each="h : ${hospitals}" th:value="${h.hospitalId}"
                             th:text="${h.name}" th:attr="data-district=${h.district}" hidden></option>
                 </select>
+                <p id="noHospitalsMsg" class="empty-state-public" style="display:none;text-align:left;padding:6px 0 0;">
+                    No hospitals registered in this district yet.
+                </p>
             </div>
 
             <div class="form-group-public">
@@ -45,6 +50,9 @@
                             th:disabled="${remainingByEvent.get(e.eventId) == 0}"
                             hidden></option>
                 </select>
+                <p id="noEventsMsg" class="empty-state-public" style="display:none;text-align:left;padding:6px 0 0;">
+                    No upcoming vaccination events at this hospital yet.
+                </p>
             </div>
 
             <p class="empty-state-public" style="text-align:left;padding:0;margin-bottom:20px;">
@@ -83,47 +91,62 @@
         </div>
     </div>
 
-</div>
+    <!-- IMPORTANT: this script lives INSIDE the layout:fragment div on purpose.
+         Anything placed outside this div gets silently dropped by the layout
+         system when the page is assembled — it never reaches the browser. -->
+    <script th:inline="javascript">
+        // Cascading dropdown logic
+        function onDistrictChange() {
+            const district = document.getElementById('districtSelect').value;
+            const hospitalSelect = document.getElementById('hospitalSelect');
+            const eventSelect = document.getElementById('eventSelect');
+            const noHospitalsMsg = document.getElementById('noHospitalsMsg');
+            const noEventsMsg = document.getElementById('noEventsMsg');
 
-<script th:inline="javascript">
-    // Cascading dropdown logic
-    function onDistrictChange() {
-        const district = document.getElementById('districtSelect').value;
-        const hospitalSelect = document.getElementById('hospitalSelect');
-        const eventSelect = document.getElementById('eventSelect');
+            let visibleCount = 0;
+            Array.from(hospitalSelect.options).forEach(function (opt) {
+                if (!opt.value) return;
+                const matches = opt.dataset.district === district;
+                opt.hidden = !matches;
+                if (matches) visibleCount++;
+            });
+            hospitalSelect.value = "";
+            hospitalSelect.disabled = !district;
+            noHospitalsMsg.style.display = (district && visibleCount === 0) ? "block" : "none";
 
-        Array.from(hospitalSelect.options).forEach(function (opt) {
-            if (!opt.value) return;
-            opt.hidden = opt.dataset.district !== district;
-        });
-        hospitalSelect.value = "";
-        hospitalSelect.disabled = !district;
-
-        // Reset the event dropdown whenever district changes
-        Array.from(eventSelect.options).forEach(function (opt) { if (opt.value) opt.hidden = true; });
-        eventSelect.value = "";
-        eventSelect.disabled = true;
-    }
-
-    function onHospitalChange() {
-        const hospitalId = document.getElementById('hospitalSelect').value;
-        const eventSelect = document.getElementById('eventSelect');
-
-        Array.from(eventSelect.options).forEach(function (opt) {
-            if (!opt.value) return;
-            opt.hidden = opt.dataset.hospitalId !== hospitalId;
-        });
-        eventSelect.value = "";
-        eventSelect.disabled = !hospitalId;
-    }
-
-    // Auto-open the success modal if a booking was just confirmed
-    document.addEventListener("DOMContentLoaded", function () {
-        const modal = document.getElementById('successModal');
-        if (modal) {
-            modal.classList.add('open');
+            // Reset the event dropdown whenever district changes
+            Array.from(eventSelect.options).forEach(function (opt) { if (opt.value) opt.hidden = true; });
+            eventSelect.value = "";
+            eventSelect.disabled = true;
+            noEventsMsg.style.display = "none";
         }
-    });
-</script>
+
+        function onHospitalChange() {
+            const hospitalId = document.getElementById('hospitalSelect').value;
+            const eventSelect = document.getElementById('eventSelect');
+            const noEventsMsg = document.getElementById('noEventsMsg');
+
+            let visibleCount = 0;
+            Array.from(eventSelect.options).forEach(function (opt) {
+                if (!opt.value) return;
+                const matches = opt.dataset.hospitalId === hospitalId;
+                opt.hidden = !matches;
+                if (matches) visibleCount++;
+            });
+            eventSelect.value = "";
+            eventSelect.disabled = !hospitalId;
+            noEventsMsg.style.display = (hospitalId && visibleCount === 0) ? "block" : "none";
+        }
+
+        // Auto-open the success modal if a booking was just confirmed
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById('successModal');
+            if (modal) {
+                modal.classList.add('open');
+            }
+        });
+    </script>
+
+</div>
 </body>
 </html>
