@@ -1,0 +1,186 @@
+
+
+.icon-btn-public {
+    position: relative;
+    background: var(--bg-alt);
+    border: 1px solid var(--border-light);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.bell-dot-public {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #dc2626;
+    border: 2px solid var(--bg-page);
+}
+
+.patient-content {
+    padding: 40px 60px;
+    min-height: 60vh;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.patient-footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-light);
+}
+
+/* Dashboard layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 28px;
+    align-items: start;
+}
+
+.dashboard-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.dashboard-panel h3 {
+    margin: 0 0 16px;
+    font-size: 16px;
+}
+
+.appointment-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-alt);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+}
+
+.appointment-card-details strong {
+    display: block;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+}
+
+.appointment-card-details span {
+    display: block;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+.notification-item {
+    display: flex;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.empty-state-public {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    padding: 20px 10px;
+    margin: 0;
+}
+
+
+.flash-banner-public {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.booking-form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    box-shadow: var(--card-shadow);
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.booking-form-card .form-group-public select {
+    padding: 11px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-size: 13.5px;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    width: 100%;
+}
+
+.booking-form-card .form-group-public select:disabled {
+    opacity: 0.5;
+}
+
+.booking-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 18, 32, 0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+}
+
+.booking-modal-overlay.open {
+    display: flex;
+}
+
+.booking-modal {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    max-width: 380px;
+    width: 100%;
+    padding: 30px;
+    text-align: center;
+    box-shadow: var(--card-shadow-hover);
+}
+
+.booking-modal img {
+    margin: 16px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+}
+
+.booking-modal-code {
+    font-family: "Consolas", monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--primary-purple);
+    background: var(--bg-alt);
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+@media (max-width: 900px) {
+    .patient-content {
+        padding: 24px;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}

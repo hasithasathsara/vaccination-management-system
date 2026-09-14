@@ -7,22 +7,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
-
-
 public interface HospitalRepository extends JpaRepository<Hospital, Long> {
-
 
     long countByStatus(HospitalStatus status);
 
-
     List<Hospital> findTop5ByStatusOrderByHospitalIdDesc(HospitalStatus status);
-
 
     List<Hospital> findAllByOrderByHospitalIdDesc();
 
 
     List<Hospital> findByDistrictAndStatusOrderByName(String district, HospitalStatus status);
+
+    List<Hospital> findByStatusOrderByDistrictAscNameAsc(HospitalStatus status);
 
 }

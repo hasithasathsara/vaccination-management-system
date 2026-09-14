@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{patient/layout}">
+<head>
+    <title>Book Appointment</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2 style="margin-bottom:6px;">Book an Appointment</h2>
+    <p style="color:var(--text-secondary);margin-bottom:24px;">
+        Choose your district, then a hospital, then an available vaccination slot.
+    </p>
+
+    <p th:if="${errorMessage}" class="flash-banner-public" style="background:#fdeaea;color:#b91c1c;" th:text="${errorMessage}">Error</p>
+
+    <div class="booking-form-card">
+        <form th:action="@{/patient/book-appointment}" method="post">
+
+            <div class="form-group-public">
+                <label>District</label>
+                <select id="districtSelect" onchange="onDistrictChange()" required>
+                    <option value="">Select your district...</option>
+                    <option th:each="d : ${districts}" th:value="${d}" th:text="${d}"></option>
+                </select>
+            </div>
+
+            <div class="form-group-public">
+                <label>Hospital</label>
+                <select id="hospitalSelect" name="hospitalId" onchange="onHospitalChange()" disabled required>
+                    <option value="">Select district first...</option>
+                    <option th:each="h : ${hospitals}" th:value="${h.hospitalId}"
+                            th:text="${h.name}" th:attr="data-district=${h.district}" hidden></option>
+                </select>
+            </div>
+
+            <div class="form-group-public">
+                <label>Vaccination Event</label>
+                <select id="eventSelect" name="eventId" disabled required>
+                    <option value="">Select hospital first...</option>
+                    <option th:each="e : ${events}" th:value="${e.eventId}"
+                            th:attr="data-hospital-id=${e.hospital.hospitalId}"
+                            th:text="${e.vaccine.brandName} + ' — ' + ${e.eventDate} + ' • ' + ${e.timeSlot} + ' (' + ${remainingByEvent.get(e.eventId)} + ' slots left)'"
+                            th:disabled="${remainingByEvent.get(e.eventId) == 0}"
+                            hidden></option>
+                </select>
+            </div>
+
+            <p class="empty-state-public" style="text-align:left;padding:0;margin-bottom:20px;">
+                Full events show 0 slots left and can't be selected. You can only hold one
+                active booking per vaccine at a time.
+            </p>
+
+            <button type="submit" class="btn-hero-primary" style="width:100%;justify-content:center;">
+                Confirm Booking
+            </button>
+        </form>
+    </div>
+
+    <!-- Success modal, shown only right after a booking is confirmed -->
+    <div class="booking-modal-overlay" id="successModal" th:if="${bookingConfirmed}">
+        <div class="booking-modal">
+            <div style="font-size:38px;">✅</div>
+            <h3 style="margin:10px 0 4px;">Booking Confirmed!</h3>
+            <p style="color:var(--text-secondary);font-size:13.5px;margin:0;"
+               th:text="${bookingConfirmed.event.vaccine.brandName} + ' — Dose ' + ${bookingConfirmed.doseNumber}">Vaccine</p>
+            <p style="color:var(--text-secondary);font-size:13px;margin:2px 0 0;"
+               th:text="${bookingConfirmed.event.hospital.name} + ' • ' + ${bookingConfirmed.event.eventDate} + ' • ' + ${bookingConfirmed.event.timeSlot}">Details</p>
+
+            <img th:src="@{'/patient/book-appointment/' + ${bookingConfirmed.appointmentId} + '/qr-image'}"
+                 alt="Booking QR code" width="180" height="180">
+
+            <div>
+                <span class="booking-modal-code" th:text="${bookingConfirmed.qrCode}">VXT-CODE</span>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">
+                Full booking management, downloads, and cancellation are available in My Bookings.
+            </p>
+            <button type="button" class="btn-hero-primary" style="margin-top:14px;" onclick="document.getElementById('successModal').classList.remove('open')">
+                Done
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    // Cascading dropdown logic
+    function onDistrictChange() {
+        const district = document.getElementById('districtSelect').value;
+        const hospitalSelect = document.getElementById('hospitalSelect');
+        const eventSelect = document.getElementById('eventSelect');
+
+        Array.from(hospitalSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            opt.hidden = opt.dataset.district !== district;
+        });
+        hospitalSelect.value = "";
+        hospitalSelect.disabled = !district;
+
+        // Reset the event dropdown whenever district changes
+        Array.from(eventSelect.options).forEach(function (opt) { if (opt.value) opt.hidden = true; });
+        eventSelect.value = "";
+        eventSelect.disabled = true;
+    }
+
+    function onHospitalChange() {
+        const hospitalId = document.getElementById('hospitalSelect').value;
+        const eventSelect = document.getElementById('eventSelect');
+
+        Array.from(eventSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            opt.hidden = opt.dataset.hospitalId !== hospitalId;
+        });
+        eventSelect.value = "";
+        eventSelect.disabled = !hospitalId;
+    }
+
+    // Auto-open the success modal if a booking was just confirmed
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById('successModal');
+        if (modal) {
+            modal.classList.add('open');
+        }
+    });
+</script>
+</body>
+</html>

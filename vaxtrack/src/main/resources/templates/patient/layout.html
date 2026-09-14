@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - VaxTrack">VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+    <link rel="stylesheet" th:href="@{/css/patient-shared.css}">
+    <link rel="stylesheet" th:href="@{/css/patient-app.css}">
+</head>
+<body>
+
+<!-- Navbar — same theme system as the public site, different links -->
+<header class="public-navbar">
+    <a th:href="@{/}" class="navbar-brand">
+        <img th:src="@{/images/logo.png}" alt="VaxTrack" class="navbar-logo">
+        <div class="navbar-brand-text">
+            <span class="navbar-title">VaxTrack</span>
+            <span class="navbar-subtitle">Powered by Ministry of Health</span>
+        </div>
+    </a>
+
+    <nav class="navbar-links" id="navbarLinks">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/patient/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active'">Dashboard</a>
+        <a th:href="@{/patient/book-appointment}" th:classappend="${activePage == 'book'} ? 'active'">Book Appointment</a>
+        <a th:href="@{/patient/my-bookings}" th:classappend="${activePage == 'bookings'} ? 'active'">My Bookings</a>
+        <a th:href="@{/patient/my-records}" th:classappend="${activePage == 'records'} ? 'active'">My Records</a>
+        <a th:href="@{/faq}">FAQ</a>
+    </nav>
+
+    <div class="navbar-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <span id="themeIcon">🌙</span>
+        </button>
+        <button class="icon-btn-public" aria-label="Notifications">
+            🔔<span class="bell-dot-public"></span>
+        </button>
+        <form th:action="@{/patient-logout}" method="post" style="margin:0;">
+            <button type="submit" class="btn-nav-outline" style="cursor:pointer;">Logout</button>
+        </form>
+        <button class="navbar-hamburger" id="navbarHamburger" aria-label="Toggle menu">☰</button>
+    </div>
+</header>
+
+<!-- Page content -->
+<main layout:fragment="content" class="patient-content">
+    <!-- Each page's own content goes here -->
+</main>
+
+<footer class="patient-footer">
+    <span>&copy; 2026 VaxTrack. Powered by Ministry of Health.</span>
+</footer>
+
+<script th:src="@{/js/public.js}"></script>
+</body>
+</html>
