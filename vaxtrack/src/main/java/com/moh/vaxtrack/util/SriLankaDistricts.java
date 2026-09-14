@@ -7,7 +7,6 @@ import java.util.Map;
 
 public class SriLankaDistricts {
 
-    // LinkedHashMap keeps province order stable in the dropdown 
     public static final Map<String, List<String>> BY_PROVINCE = new LinkedHashMap<>();
 
     static {
