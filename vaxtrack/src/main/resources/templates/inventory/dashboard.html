@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{inventory/layout}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">💉</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Stock (Doses)</span>
+                <span class="stat-value" th:text="${totalStock}">0</span>
+                <span class="stat-note">Across all hospitals</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">🏥</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Hospitals</span>
+                <span class="stat-value" th:text="${totalHospitals}">0</span>
+                <span class="stat-note">Receiving stock</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">📋</div>
+            <div class="stat-body">
+                <span class="stat-label">Pending Requests</span>
+                <span class="stat-value" th:text="${pendingRequests}">0</span>
+                <span class="stat-note">Awaiting review</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-body">
+                <span class="stat-label">Approved Requests</span>
+                <span class="stat-value" th:text="${approvedRequests}">0</span>
+                <span class="stat-note">Live once dispatch is active</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon blue">🚚</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Distributed</span>
+                <span class="stat-value" th:text="${totalDistributed}">0</span>
+                <span class="stat-note">Live once dispatch is active</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="two-col">
+
+        <!-- Inventory overview -->
+        <div class="panel">
+            <h3 class="panel-title">Inventory Overview</h3>
+            <div th:if="${not #maps.isEmpty(stockByVaccine)}">
+                <div th:each="entry : ${stockByVaccine}" style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px;">
+                        <span th:text="${entry.key}">Vaccine</span>
+                        <span th:text="${entry.value} + ' doses'">0 doses</span>
+                    </div>
+                </div>
+            </div>
+            <p class="empty-state" th:if="${#maps.isEmpty(stockByVaccine)}">
+                No national stock recorded yet. Add a batch from Inventory Management.
+            </p>
+        </div>
+
+        <!-- Pending hospital requests preview -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Pending Hospital Requests</h3>
+                <a th:href="@{/inventory/requests}" class="link-btn">View All →</a>
+            </div>
+            <table class="data-table" th:if="${not #lists.isEmpty(recentPendingRequests)}">
+                <thead>
+                <tr>
+                    <th>Hospital</th>
+                    <th>Vaccine</th>
+                    <th>Doses</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${recentPendingRequests}">
+                    <td th:text="${r.hospital.name}">Hospital</td>
+                    <td th:text="${r.vaccine.brandName}">Vaccine</td>
+                    <td th:text="${r.requestedQuantity}">0</td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="empty-state" th:if="${#lists.isEmpty(recentPendingRequests)}">
+                No pending requests right now.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>
