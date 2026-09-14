@@ -16,6 +16,9 @@ public class StockRequest {
     @Column(name = "requested_quantity", nullable = false)
     private Integer requestedQuantity;
 
+    @Column(name = "dispatched_quantity")
+    private Integer dispatchedQuantity;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StockRequestStatus status;
@@ -48,6 +51,8 @@ public class StockRequest {
     public void setRequestId(Long requestId) { this.requestId = requestId; }
     public Integer getRequestedQuantity() { return requestedQuantity; }
     public void setRequestedQuantity(Integer requestedQuantity) { this.requestedQuantity = requestedQuantity; }
+    public Integer getDispatchedQuantity() { return dispatchedQuantity; }
+    public void setDispatchedQuantity(Integer dispatchedQuantity) { this.dispatchedQuantity = dispatchedQuantity; }
     public StockRequestStatus getStatus() { return status; }
     public void setStatus(StockRequestStatus status) { this.status = status; }
     public String getReason() { return reason; }
