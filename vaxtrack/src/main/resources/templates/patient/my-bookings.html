@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{patient/layout}">
+<head>
+    <title>My Bookings</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2 style="margin-bottom:6px;">My Bookings</h2>
+    <p style="color:var(--text-secondary);margin-bottom:24px;">
+        Your current appointment and full booking history.
+    </p>
+
+    <p th:if="${successMessage}" class="flash-banner-public" style="background:#e7f8ee;color:#16a34a;" th:text="${successMessage}">Success</p>
+    <p th:if="${errorMessage}" class="flash-banner-public" style="background:#fdeaea;color:#b91c1c;" th:text="${errorMessage}">Error</p>
+
+    <!-- ===== ACTIVE BOOKING ===== -->
+    <h3 style="margin:0 0 14px;">Current Booking</h3>
+
+    <div th:if="${activeBooking}" class="dashboard-panel" style="display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;margin-bottom:40px;">
+
+        <img th:src="@{'/patient/book-appointment/' + ${activeBooking.appointmentId} + '/qr-image'}"
+             alt="Booking QR code" width="180" height="180"
+             style="border-radius:10px;border:1px solid var(--border-light);">
+
+        <div style="flex:1;min-width:240px;">
+            <strong style="font-size:17px;" th:text="${activeBooking.event.hospital.name}">Hospital</strong>
+            <p style="margin:6px 0;color:var(--text-secondary);"
+               th:text="${activeBooking.event.vaccine.brandName} + ' — Dose ' + ${activeBooking.doseNumber}">Vaccine</p>
+            <p style="margin:0 0 12px;color:var(--text-secondary);"
+               th:text="${activeBooking.event.eventDate} + ' • ' + ${activeBooking.event.timeSlot}">Date</p>
+            <span class="booking-modal-code" th:text="${activeBooking.qrCode}">VXT-CODE</span>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+                <a th:href="@{'/patient/my-bookings/' + ${activeBooking.appointmentId} + '/qr-download'}"
+                   class="btn-nav-outline">⬇ Download PNG</a>
+                <a th:href="@{'/patient/my-bookings/' + ${activeBooking.appointmentId} + '/qr-pdf'}"
+                   class="btn-nav-outline">⬇ Download PDF</a>
+                <form th:action="@{'/patient/my-bookings/' + ${activeBooking.appointmentId} + '/cancel'}" method="post">
+                    <button type="submit" class="btn-nav-outline"
+                            style="border-color:#dc2626;color:#dc2626;cursor:pointer;"
+                            onclick="return confirm('Cancel this booking? This cannot be undone.')">
+                        Cancel Booking
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <p class="empty-state-public" th:unless="${activeBooking}" style="margin-bottom:40px;">
+        No active booking right now.
+        <a th:href="@{/patient/book-appointment}" style="color:var(--primary-blue);font-weight:700;">Book an appointment →</a>
+    </p>
+
+    <!-- ===== PAST HISTORY ===== -->
+    <h3 style="margin:0 0 14px;">Booking History</h3>
+
+    <div class="dashboard-panel">
+        <table class="data-table" th:if="${not #lists.isEmpty(history)}" style="width:100%;">
+            <thead>
+            <tr>
+                <th style="text-align:left;padding:10px 8px;color:var(--text-secondary);font-size:12.5px;">Hospital</th>
+                <th style="text-align:left;padding:10px 8px;color:var(--text-secondary);font-size:12.5px;">Vaccine</th>
+                <th style="text-align:left;padding:10px 8px;color:var(--text-secondary);font-size:12.5px;">Date</th>
+                <th style="text-align:left;padding:10px 8px;color:var(--text-secondary);font-size:12.5px;">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${history}" style="border-top:1px solid var(--border-light);">
+                <td style="padding:10px 8px;font-size:13.5px;" th:text="${a.event.hospital.name}">Hospital</td>
+                <td style="padding:10px 8px;font-size:13.5px;" th:text="${a.event.vaccine.brandName} + ' — Dose ' + ${a.doseNumber}">Vaccine</td>
+                <td style="padding:10px 8px;font-size:13.5px;" th:text="${a.event.eventDate}">Date</td>
+                <td style="padding:10px 8px;">
+                    <span style="font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;"
+                          th:style="${a.status.name() == 'VACCINATED'} ? 'background:#e7f8ee;color:#16a34a;' : (${a.status.name() == 'CANCELLED'} ? 'background:#f3f4f6;color:#6b7280;' : 'background:#fdeaea;color:#b91c1c;')"
+                          th:text="${a.status}">Status</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state-public" th:if="${#lists.isEmpty(history)}">
+            No past bookings yet — leave this space; it fills in as your booking history grows.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>
