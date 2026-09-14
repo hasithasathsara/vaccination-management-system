@@ -17,7 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.stream.Collectors;
 
-// Inventory Manager account management
 @Controller
 @RequestMapping("/admin/inventory-staff")
 public class InventoryManagerController {
@@ -34,7 +33,6 @@ public class InventoryManagerController {
         this.passwordGeneratorService = passwordGeneratorService;
     }
 
-    // List all Inventory Managers
     @GetMapping
     public String list(Model model) {
         model.addAttribute("inventoryStaff", userRepository.findByRoleOrderByUserIdDesc(Role.INVENTORY_MANAGER));
@@ -44,7 +42,6 @@ public class InventoryManagerController {
         return "admin/inventory-staff";
     }
 
-    // Create new Inventory Manager
     @PostMapping("/add")
     public String add(@Valid @ModelAttribute("newInventoryManager") InventoryManagerForm form,
                        BindingResult result,
@@ -55,14 +52,12 @@ public class InventoryManagerController {
             return "redirect:/admin/inventory-staff";
         }
 
-        // Block duplicate usernames
         if (userRepository.existsByUsername(form.getUsername())) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "The username \"" + form.getUsername() + "\" is already taken.");
             return "redirect:/admin/inventory-staff";
         }
 
-        // Generate and hash password
         String plainPassword = passwordGeneratorService.generate();
         String hashedPassword = passwordEncoder.encode(plainPassword);
 
@@ -70,20 +65,17 @@ public class InventoryManagerController {
                 form.getEmail(), form.getPhoneNumber());
         userRepository.save(newManager);
 
-        // One-time password handoff
         redirectAttributes.addFlashAttribute("generatedUsername", newManager.getUsername());
         redirectAttributes.addFlashAttribute("generatedPassword", plainPassword);
 
         return "redirect:/admin/inventory-staff";
     }
 
-    // Suspend or reactivate
     @PostMapping("/{id}/toggle-status")
     public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         User manager = userRepository.findById(id).orElse(null);
 
-        // Role safety check
         if (manager == null || manager.getRole() != Role.INVENTORY_MANAGER) {
             redirectAttributes.addFlashAttribute("errorMessage", "That Inventory Manager account no longer exists.");
             return "redirect:/admin/inventory-staff";
@@ -103,7 +95,6 @@ public class InventoryManagerController {
         return "redirect:/admin/inventory-staff";
     }
 
-    // Collect validation errors
     private String firstErrorMessage(BindingResult result) {
         return result.getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
