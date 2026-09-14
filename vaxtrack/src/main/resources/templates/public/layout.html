@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - VaxTrack">VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="public-navbar">
+    <a th:href="@{/}" class="navbar-brand">
+        <img th:src="@{/images/logo.png}" alt="VaxTrack" class="navbar-logo">
+        <div class="navbar-brand-text">
+            <span class="navbar-title">VaxTrack</span>
+            <span class="navbar-subtitle">Powered by Ministry of Health</span>
+        </div>
+    </a>
+
+    <nav class="navbar-links" id="navbarLinks">
+        <a th:href="@{/}" th:classappend="${activePage == 'home'} ? 'active'">Home</a>
+        <a th:href="@{/about}" th:classappend="${activePage == 'about'} ? 'active'">About VaxTrack</a>
+        <a th:href="@{/services}" th:classappend="${activePage == 'services'} ? 'active'">Vaccination Services</a>
+        <a th:href="@{/faq}" th:classappend="${activePage == 'faq'} ? 'active'">FAQ</a>
+        <a th:href="@{/contact}" th:classappend="${activePage == 'contact'} ? 'active'">Contact</a>
+    </nav>
+
+    <div class="navbar-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <span id="themeIcon">🌙</span>
+        </button>
+        <a th:href="@{/login/patient}" class="btn-nav-outline">Login</a>
+        <a th:href="@{/register/patient}" class="btn-nav-filled">Register</a>
+        <button class="navbar-hamburger" id="navbarHamburger" aria-label="Toggle menu">☰</button>
+    </div>
+</header>
+
+<!-- Page content -->
+<main layout:fragment="content">
+    <!-- Each page's own content goes here -->
+</main>
+
+<!-- Footer -->
+<footer class="public-footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <div class="navbar-brand" style="margin-bottom:12px;">
+                <img th:src="@{/images/logo.png}" alt="VaxTrack" class="navbar-logo">
+                <div class="navbar-brand-text">
+                    <span class="navbar-title" style="color:#fff;">VaxTrack</span>
+                    <span class="navbar-subtitle">Powered by Ministry of Health</span>
+                </div>
+            </div>
+            <p class="footer-blurb">
+                A digital platform helping citizens book, manage, and track their
+                vaccination journey — safely and simply.
+            </p>
+        </div>
+
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/about}">About VaxTrack</a>
+            <a th:href="@{/services}">Vaccination Services</a>
+            <a th:href="@{/faq}">FAQ</a>
+            <a th:href="@{/contact}">Contact</a>
+        </div>
+
+        <div class="footer-col">
+            <h4>Services</h4>
+            <a th:href="@{/services}">Appointments</a>
+            <a th:href="@{/login/patient}">My Bookings</a>
+            <a th:href="@{/login/patient}">Vaccination Records</a>
+        </div>
+
+        <div class="footer-col">
+            <h4>Support</h4>
+            <a th:href="@{/contact}">Help Centre</a>
+            <a th:href="@{/faq}">FAQ</a>
+            <a th:href="@{/contact}">Contact</a>
+        </div>
+
+        <div class="footer-col footer-moh">
+            <h4>Ministry of Health</h4>
+            <p style="color:rgba(255,255,255,0.65);font-size:13px;line-height:1.6;">
+                Healthy People, Healthy Nation
+            </p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <span>&copy; 2026 VaxTrack. Powered by Ministry of Health.</span>
+        <div class="footer-social">
+            <a href="#" aria-label="Facebook">📘</a>
+            <a href="#" aria-label="Twitter">🐦</a>
+            <a href="#" aria-label="YouTube">📺</a>
+            <a href="#" aria-label="LinkedIn">💼</a>
+        </div>
+    </div>
+</footer>
+
+<script th:src="@{/js/public.js}"></script>
+</body>
+</html>
