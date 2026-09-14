@@ -8,13 +8,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-// Read-only patient list, plus the one hard-delete exception in the whole system
 @Controller
 @RequestMapping("/admin/patients")
 public class PatientController {
 
-    // Logs WHY a patient was permanently deleted, since there's no audit
-    // table in the schema to store it — this keeps a paper trail either way.
+
     private static final Logger logger = LoggerFactory.getLogger(PatientController.class);
 
     private final PatientRepository patientRepository;
@@ -32,14 +30,12 @@ public class PatientController {
         return "admin/patients";
     }
 
-    // The one true hard delete — death or permanent relocation only
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id,
                           @RequestParam String reason,
                           @RequestParam(required = false) String notes,
                           RedirectAttributes redirectAttributes) {
 
-        // Reason is mandatory — this button should never fire silently
         if (reason == null || reason.isBlank()) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "A reason is required before permanently deleting a patient record.");
@@ -48,7 +44,6 @@ public class PatientController {
 
         return patientRepository.findById(id).map(patient -> {
 
-            // Written to the application log as the only audit trail we have
             logger.warn("PATIENT HARD DELETE — id={}, name={}, idNumber={}, reason={}, notes={}",
                     patient.getPatientId(), patient.getFullName(), patient.getIdNumber(), reason, notes);
 
