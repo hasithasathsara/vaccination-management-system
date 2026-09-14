@@ -23,7 +23,6 @@ public class VaccineController {
         this.vaccineRepository = vaccineRepository;
     }
 
-    //shows every vaccine, active AND inactive
     @GetMapping
     public String list(Model model) {
         model.addAttribute("vaccines", vaccineRepository.findAllByOrderByVaccineIdDesc());
@@ -33,7 +32,6 @@ public class VaccineController {
         return "admin/vaccines";
     }
 
-    // registers a new vaccine brand into the master list
     @PostMapping("/add")
     public String add(@Valid @ModelAttribute("newVaccine") Vaccine newVaccine,
                        BindingResult result,
@@ -52,7 +50,6 @@ public class VaccineController {
         return "redirect:/admin/vaccines";
     }
 
-    // updates brand name / doses required.
     @PostMapping("/{id}/edit")
     public String edit(@PathVariable Long id,
                         @Valid @ModelAttribute("editVaccine") Vaccine form,
@@ -79,7 +76,6 @@ public class VaccineController {
         return "redirect:/admin/vaccines";
     }
 
-    // soft delete / reactivate.
 
     @PostMapping("/{id}/toggle-status")
     public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
