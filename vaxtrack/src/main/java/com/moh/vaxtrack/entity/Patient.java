@@ -2,23 +2,19 @@ package com.moh.vaxtrack.entity;
 
 import jakarta.persistence.*;
 
-// Patient record
 @Entity
 @Table(name = "patient")
 public class Patient {
 
-    // Primary key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "patient_id")
     private Long patientId;
 
-    // NIC or Birth Certificate
     @Enumerated(EnumType.STRING)
     @Column(name = "id_type", nullable = false)
     private IdType idType;
 
-    // The actual ID number, unique
     @Column(name = "id_number", nullable = false, unique = true)
     private String idNumber;
 
@@ -37,11 +33,9 @@ public class Patient {
     @Column(name = "address")
     private String address;
 
-    // Patient's own password, hashed
     @Column(name = "password", nullable = false)
     private String password;
 
-    // Optional reported disability info
     @Column(name = "disabilities")
     private String disabilities;
 
