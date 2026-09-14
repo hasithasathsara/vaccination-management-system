@@ -1,9 +1,11 @@
 package com.moh.vaxtrack.controller;
 
 import com.moh.vaxtrack.entity.VaccinationEventStatus;
+import com.moh.vaxtrack.entity.VaccineLogStatus;
 import com.moh.vaxtrack.repository.HospitalStockRepository;
 import com.moh.vaxtrack.repository.StockRequestRepository;
 import com.moh.vaxtrack.repository.VaccinationEventRepository;
+import com.moh.vaxtrack.repository.VaccineLogRepository;
 import com.moh.vaxtrack.security.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,13 +21,16 @@ public class SubAdminDashboardController {
     private final VaccinationEventRepository eventRepository;
     private final StockRequestRepository stockRequestRepository;
     private final HospitalStockRepository hospitalStockRepository;
+    private final VaccineLogRepository vaccineLogRepository;
 
     public SubAdminDashboardController(VaccinationEventRepository eventRepository,
                                         StockRequestRepository stockRequestRepository,
-                                        HospitalStockRepository hospitalStockRepository) {
+                                        HospitalStockRepository hospitalStockRepository,
+                                        VaccineLogRepository vaccineLogRepository) {
         this.eventRepository = eventRepository;
         this.stockRequestRepository = stockRequestRepository;
         this.hospitalStockRepository = hospitalStockRepository;
+        this.vaccineLogRepository = vaccineLogRepository;
     }
 
     @GetMapping("/subadmin/dashboard")
@@ -36,7 +41,6 @@ public class SubAdminDashboardController {
         model.addAttribute("username", principal.getUsername());
         model.addAttribute("district", district);
         model.addAttribute("roleLabel", "Sub Administrator");
-
         model.addAttribute("activePage", "dashboard");
         model.addAttribute("pageTitle", "District Dashboard");
 
@@ -51,9 +55,13 @@ public class SubAdminDashboardController {
 
         model.addAttribute("availableStock", hospitalStockRepository.sumQuantityByDistrict(district));
 
-        // TODO: wire these once the clinical module is built
-        model.addAttribute("totalVaccinated", 0);
-        model.addAttribute("totalFailed", 0);
+        model.addAttribute("totalVaccinated",
+                vaccineLogRepository.countByAppointment_Event_Hospital_DistrictAndStatusAndIsDeletedFalse(
+                        district, VaccineLogStatus.VACCINATED));
+        model.addAttribute("totalFailed",
+                vaccineLogRepository.countByAppointment_Event_Hospital_DistrictAndStatusAndIsDeletedFalse(
+                        district, VaccineLogStatus.FAILED));
+
         model.addAttribute("recentEvents", Collections.emptyList());
 
         return "subadmin/dashboard";

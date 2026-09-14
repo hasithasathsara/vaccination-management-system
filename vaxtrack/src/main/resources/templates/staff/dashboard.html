@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{staff/layout}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="page-header">
+        <p class="welcome-text">Welcome back,</p>
+        <h2 class="welcome-name" th:text="${username}">Medical Staff</h2>
+        <p class="welcome-sub" th:text="|You're assigned to ${hospitalName}.|">Hospital info</p>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div class="stat-body">
+                <span class="stat-label">Today's Appointments</span>
+                <span class="stat-value" th:text="${todaysAppointments}">0</span>
+                <span class="stat-note">Live once patient booking is active</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">✔</div>
+            <div class="stat-body">
+                <span class="stat-label">Vaccinated Today</span>
+                <span class="stat-value" th:text="${vaccinatedToday}">0</span>
+                <span class="stat-note">Live once clinical module is active</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">✖</div>
+            <div class="stat-body">
+                <span class="stat-label">Failed / Issue Today</span>
+                <span class="stat-value" th:text="${failedToday}">0</span>
+                <span class="stat-note">Live once clinical module is active</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">💉</div>
+            <div class="stat-body">
+                <span class="stat-label">Remaining Queue</span>
+                <span class="stat-value" th:text="${remainingQueue}">0</span>
+                <span class="stat-note">To be processed</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3 class="panel-title">Today's Progress</h3>
+        <p class="empty-state">
+            This will show once Patient Appointment Booking and the Clinical Operations
+            module are both active. For now, head to Waste Reporting Management — that's
+            fully functional already.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

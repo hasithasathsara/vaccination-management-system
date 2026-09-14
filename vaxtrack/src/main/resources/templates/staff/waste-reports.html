@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{staff/layout}">
+<head>
+    <title>Waste Reporting Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <p style="color:#6b7280;font-size:13.5px;margin:0;">
+            Report clinical waste for collection. This is your own submission history only.
+        </p>
+        <button class="btn-primary" onclick="openModal('addWasteModal')">+ Report Waste</button>
+    </div>
+
+    <!-- Reports table -->
+    <div class="panel">
+        <table class="data-table" th:if="${not #lists.isEmpty(reports)}">
+            <thead>
+            <tr>
+                <th>Waste Type</th>
+                <th>Quantity</th>
+                <th>Reported On</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${reports}">
+                <td th:text="${r.wasteType}">Type</td>
+                <td th:text="${r.quantity}">0</td>
+                <td th:text="${#temporals.format(r.reportedAt, 'dd MMM yyyy, hh:mm a')}">Date</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(reports)}">
+            You haven't reported any waste yet. Click "Report Waste" to submit your first entry.
+        </p>
+    </div>
+
+    <!-- Report Waste modal -->
+    <div class="modal-overlay" id="addWasteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Report Waste</h3>
+                <button class="modal-close" onclick="closeModal('addWasteModal')">&times;</button>
+            </div>
+            <form th:action="@{/staff/waste-reports/add}" method="post">
+                <div class="form-group">
+                    <label>Waste Type</label>
+                    <select name="wasteType" required>
+                        <option value="">Select waste type...</option>
+                        <option th:each="type : ${wasteTypes}" th:value="${type}" th:text="${type}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" min="1" placeholder="e.g. 15" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addWasteModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

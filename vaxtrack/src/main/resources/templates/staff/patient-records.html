@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{staff/layout}">
+<head>
+    <title>Patients Records Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <p th:if="${successMessage}" class="flash-banner success" th:text="${successMessage}">Success</p>
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
+
+    <div class="panel">
+        <table class="data-table" th:if="${not #lists.isEmpty(logs)}">
+            <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Vaccine</th>
+                <th>Dose</th>
+                <th>Status</th>
+                <th>Logged At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="l : ${logs}">
+                <td th:text="${l.appointment.patient.fullName}">Patient</td>
+                <td th:text="${l.vaccine.brandName}">Vaccine</td>
+                <td th:text="${l.doseNumber}">1</td>
+                <td>
+                    <span class="badge" th:classappend="${l.status.name() == 'VACCINATED'} ? 'active' : 'inactive'"
+                          th:text="${l.status}">VACCINATED</span>
+                </td>
+                <td th:text="${#temporals.format(l.loggedAt, 'dd MMM yyyy, hh:mm a')}">Date</td>
+                <td class="actions-cell">
+                    <form th:if="${l.status.name() == 'VACCINATED'}"
+                          th:action="@{'/staff/patient-records/' + ${l.logId} + '/undo'}" method="post" class="inline-form">
+                        <button type="submit" class="btn-icon" title="Undo"
+                                onclick="return confirm('Undo this Vaccinated entry? The dose will be returned to stock.')">↩</button>
+                    </form>
+                    <form th:action="@{'/staff/patient-records/' + ${l.logId} + '/void'}" method="post" class="inline-form">
+                        <button type="submit" class="btn-icon" title="Void Entry"
+                                onclick="return confirm('Void this entry completely? This is for entirely erroneous records, e.g. the wrong patient\'s QR was scanned.')">🗑</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(logs)}">
+            No clinical records at your hospital yet.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

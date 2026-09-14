@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{staff/layout}">
+<head>
+    <title>Verify Patient</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
+
+    <div class="panel" style="max-width:600px;margin:0 auto;">
+
+        <h3 style="margin-top:0;">Patient Verification</h3>
+
+        <div class="credentials-box" style="padding:0;margin-bottom:20px;">
+            <div class="credential-row">
+                <span class="credential-label">Full Name</span>
+                <span class="credential-value" th:text="${patient.fullName}">Name</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label" th:text="${patient.idType}">ID Type</span>
+                <span class="credential-value" th:text="${patient.idNumber}">ID</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Age</span>
+                <span class="credential-value" th:text="${patient.age}">0</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Phone</span>
+                <span class="credential-value" th:text="${patient.phoneNumber}">Phone</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Disabilities</span>
+                <span class="credential-value" th:text="${patient.disabilities} ?: 'None reported'">—</span>
+            </div>
+        </div>
+
+        <h4 style="margin-bottom:8px;">This Booking</h4>
+        <p style="color:var(--text-secondary,#6b7280);font-size:13.5px;margin:0 0 20px;">
+            <span th:text="${appointment.event.vaccine.brandName}">Vaccine</span> —
+            Dose <span th:text="${completedDoses} + 1">1</span> of
+            <span th:text="${appointment.event.vaccine.dosesRequired}">1</span> •
+            <span th:text="${appointment.event.hospital.name}">Hospital</span>
+        </p>
+
+        <h4 style="margin-bottom:8px;">Vaccination History</h4>
+        <table class="data-table" th:if="${not #lists.isEmpty(history)}" style="margin-bottom:20px;">
+            <thead>
+            <tr><th>Vaccine</th><th>Dose</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="h : ${history}">
+                <td th:text="${h.vaccine.brandName}">Vaccine</td>
+                <td th:text="${h.doseNumber}">1</td>
+                <td>
+                    <span class="badge" th:classappend="${h.status.name() == 'VACCINATED'} ? 'active' : 'inactive'"
+                          th:text="${h.status}">VACCINATED</span>
+                </td>
+                <td th:text="${#temporals.format(h.loggedAt, 'dd MMM yyyy')}">Date</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="empty-state" th:if="${#lists.isEmpty(history)}" style="margin-bottom:20px;">
+            No prior vaccination history on record.
+        </p>
+
+        <div style="display:flex;gap:12px;">
+            <form th:action="@{'/staff/verify/' + ${appointment.appointmentId} + '/vaccinate'}" method="post" style="flex:1;">
+                <button type="submit" class="btn-primary" style="width:100%;background:#16a34a;"
+                        onclick="return confirm('Confirm this patient has been vaccinated?')">
+                    ✔ Vaccinated
+                </button>
+            </form>
+            <button type="button" class="btn-primary" style="flex:1;background:#dc2626;" onclick="openModal('failModal')">
+                ✖ Failed / Issue
+            </button>
+        </div>
+    </div>
+
+    <!-- Failed/Issue reason modal -->
+    <div class="modal-overlay" id="failModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Mark as Failed / Issue</h3>
+                <button class="modal-close" onclick="closeModal('failModal')">&times;</button>
+            </div>
+            <form th:action="@{'/staff/verify/' + ${appointment.appointmentId} + '/fail'}" method="post">
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Reason</label>
+                    <input type="text" name="reason" placeholder="e.g. Patient fainted, patient refused" required>
+                </div>
+                <div class="modal-footer" style="padding:20px 24px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('failModal')">Cancel</button>
+                    <button type="submit" class="btn-danger">Confirm Failed / Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

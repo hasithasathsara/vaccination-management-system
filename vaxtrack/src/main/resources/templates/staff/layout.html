@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - VaxTrack">VaxTrack Medical Staff</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img th:src="@{/images/logo.png}" alt="VaxTrack logo" class="brand-logo">
+            <div class="brand-text">
+                <span class="brand-name">VaxTrack</span>
+                <span class="brand-tagline">Smart Vaccination Management System</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/staff/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active'">
+                <span class="nav-icon">🏠</span> Dashboard
+            </a>
+            <a th:href="@{/staff/scan-qr}" th:classappend="${activePage == 'scanQr'} ? 'active'">
+                <span class="nav-icon">📷</span> Scan QR
+            </a>
+            <a th:href="@{/staff/daily-queue}" th:classappend="${activePage == 'dailyQueue'} ? 'active'">
+                <span class="nav-icon">📅</span> View Daily Queue
+            </a>
+            <a th:href="@{/staff/patient-records}" th:classappend="${activePage == 'patientRecords'} ? 'active'">
+                <span class="nav-icon">🧑‍🤝‍🧑</span> Patients Records Management
+            </a>
+            <a th:href="@{/staff/waste-reports}" th:classappend="${activePage == 'waste'} ? 'active'">
+                <span class="nav-icon">🗑</span> Waste Reporting Management
+            </a>
+        </nav>
+
+        <form th:action="@{/logout}" method="post" class="sidebar-logout">
+            <button type="submit"><span class="nav-icon">🚪</span> Logout</button>
+        </form>
+    </aside>
+
+    <!-- Main area -->
+    <div class="main-area">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" id="hamburgerBtn" aria-label="Toggle sidebar">☰</button>
+                <h1 class="page-title" th:text="${pageTitle}">Page Title</h1>
+            </div>
+
+            <div class="topbar-right">
+                <button class="icon-btn bell-btn" aria-label="Notifications">
+                    🔔<span class="bell-dot"></span>
+                </button>
+
+                <div class="profile-menu">
+                    <button class="profile-trigger" id="profileTrigger">
+                        <span class="profile-avatar">👤</span>
+                        <span class="profile-info">
+                            <span class="profile-name" th:text="${username}">Medical Staff</span>
+                            <span class="profile-role" th:text="${roleLabel}">Medical Staff</span>
+                        </span>
+                        <span class="chevron">▾</span>
+                    </button>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page content -->
+        <main class="content">
+            <div layout:fragment="content">
+                <!-- Each page's own content is injected here -->
+            </div>
+        </main>
+
+    </div>
+</div>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

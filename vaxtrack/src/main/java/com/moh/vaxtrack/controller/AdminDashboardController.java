@@ -2,10 +2,12 @@ package com.moh.vaxtrack.controller;
 
 import com.moh.vaxtrack.entity.HospitalStatus;
 import com.moh.vaxtrack.entity.VaccineStatus;
+import com.moh.vaxtrack.entity.VaccineLogStatus;
 import com.moh.vaxtrack.repository.HospitalRepository;
 import com.moh.vaxtrack.repository.NationalStockRepository;
 import com.moh.vaxtrack.repository.PatientRepository;
 import com.moh.vaxtrack.repository.VaccineRepository;
+import com.moh.vaxtrack.repository.VaccineLogRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +21,18 @@ public class AdminDashboardController {
     private final VaccineRepository vaccineRepository;
     private final PatientRepository patientRepository;
     private final NationalStockRepository nationalStockRepository;
+    private final VaccineLogRepository vaccineLogRepository;
 
     public AdminDashboardController(HospitalRepository hospitalRepository,
                                      VaccineRepository vaccineRepository,
                                      PatientRepository patientRepository,
-                                     NationalStockRepository nationalStockRepository) {
+                                     NationalStockRepository nationalStockRepository,
+                                     VaccineLogRepository vaccineLogRepository) {
         this.hospitalRepository = hospitalRepository;
         this.vaccineRepository = vaccineRepository;
         this.patientRepository = patientRepository;
         this.nationalStockRepository = nationalStockRepository;
+        this.vaccineLogRepository = vaccineLogRepository;
     }
 
     @GetMapping("/admin/dashboard")
@@ -35,7 +40,6 @@ public class AdminDashboardController {
 
         model.addAttribute("username", principal.getName());
         model.addAttribute("roleLabel", "Super Administrator");
-
         model.addAttribute("activePage", "dashboard");
         model.addAttribute("pageTitle", "Global Dashboard");
 
@@ -53,9 +57,9 @@ public class AdminDashboardController {
 
         model.addAttribute("totalStock", nationalStockRepository.sumAllQuantity());
 
-        // TODO: wire once VaccineLog entity exists
-        model.addAttribute("totalVaccinated", 0);
-        model.addAttribute("totalFailed", 0);
+        // Now real — the clinical module exists
+        model.addAttribute("totalVaccinated", vaccineLogRepository.countByStatusAndIsDeletedFalse(VaccineLogStatus.VACCINATED));
+        model.addAttribute("totalFailed", vaccineLogRepository.countByStatusAndIsDeletedFalse(VaccineLogStatus.FAILED));
 
         return "admin/dashboard";
     }

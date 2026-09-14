@@ -27,11 +27,13 @@ public class SecurityConfig {
         this.staffLoginSuccessHandler = staffLoginSuccessHandler;
     }
 
+    // Shared password hashing, used by both staff and patient login
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Staff login credential check (user table)
     @Bean
     public DaoAuthenticationProvider staffAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -40,6 +42,7 @@ public class SecurityConfig {
         return provider;
     }
 
+    // Patient login credential check (patient table)
     @Bean
     public DaoAuthenticationProvider patientAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -48,6 +51,7 @@ public class SecurityConfig {
         return provider;
     }
 
+    // Patient security rules — checked FIRST (narrow match), completely separate from staff
     @Bean
     @Order(1)
     public SecurityFilterChain patientSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -74,14 +78,15 @@ public class SecurityConfig {
         return http.build();
     }
 
-
+    // Staff / admin security rules — checked SECOND, catches everything else.
+    // Every staff role shares this ONE login page, but lands on a DIFFERENT
+    // dashboard afterward — see StaffLoginSuccessHandler.
     @Bean
     @Order(2)
     public SecurityFilterChain staffSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authenticationProvider(staffAuthenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/about", "/services", "/faq", "/contact").permitAll()
                         .requestMatchers("/login/staff", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/subadmin/**").hasRole("SUB_ADMIN")
