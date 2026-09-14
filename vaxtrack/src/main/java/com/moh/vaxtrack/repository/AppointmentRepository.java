@@ -11,7 +11,6 @@ import java.util.Optional;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-
     List<Appointment> findByPatient_PatientIdOrderByBookedAtDesc(Long patientId);
 
     Optional<Appointment> findByPatient_PatientIdAndStatus(Long patientId, AppointmentStatus status);
@@ -19,10 +18,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Optional<Appointment> findByPatient_PatientIdAndEvent_Vaccine_VaccineIdAndStatus(
             Long patientId, Long vaccineId, AppointmentStatus status);
 
-
     long countByEvent_EventIdAndStatus(Long eventId, AppointmentStatus status);
 
-
     Optional<Appointment> findByQrCode(String qrCode);
+
+    List<Appointment> findByPatient_PatientIdAndStatusNotOrderByBookedAtDesc(Long patientId, AppointmentStatus status);
+
+    List<Appointment> findByPatient_PatientIdAndStatusOrderByBookedAtDesc(Long patientId, AppointmentStatus status);
 
 }
