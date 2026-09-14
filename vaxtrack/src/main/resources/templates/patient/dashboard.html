@@ -63,7 +63,19 @@
 
             <div class="dashboard-panel">
                 <h3>Notifications</h3>
-                <p class="empty-state-public">
+
+                <div th:if="${not #lists.isEmpty(notifications)}">
+                    <div class="notification-item" th:each="n : ${notifications}">
+                        <span>🔔</span>
+                        <div>
+                            <div th:text="${n.message}">Message</div>
+                            <div style="color:var(--text-secondary);font-size:11px;margin-top:2px;"
+                                 th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="empty-state-public" th:if="${#lists.isEmpty(notifications)}">
                     You're all caught up — no notifications yet.
                 </p>
             </div>
