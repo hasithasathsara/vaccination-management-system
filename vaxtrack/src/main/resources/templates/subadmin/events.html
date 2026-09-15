@@ -135,7 +135,8 @@
 
                 <p class="modal-note">
                     Combined capacity of all events at this hospital, on this date, cannot exceed
-                    that hospital's daily capacity.
+                    that hospital's daily capacity. Assigning nurses is optional — you can still
+                    schedule the event without picking anyone.
                 </p>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
@@ -211,15 +212,18 @@
         </div>
     </div>
 
-</div>
+    <!-- IMPORTANT: this script lives INSIDE the layout:fragment div on purpose.
+         Anything placed outside this div gets silently dropped by the layout
+         system when the page is assembled — it never reaches the browser. -->
+    <script>
+        // Shows only the nurse checklist matching the currently selected hospital
+        function toggleNurseGroups(selectedHospitalId, containerId) {
+            document.querySelectorAll('#' + containerId + ' .nurse-group').forEach(function (group) {
+                group.style.display = (group.dataset.hospitalId === selectedHospitalId) ? 'block' : 'none';
+            });
+        }
+    </script>
 
-<script>
-    // Shows only the nurse checklist matching the currently selected hospital
-    function toggleNurseGroups(selectedHospitalId, containerId) {
-        document.querySelectorAll('#' + containerId + ' .nurse-group').forEach(function (group) {
-            group.style.display = (group.dataset.hospitalId === selectedHospitalId) ? 'block' : 'none';
-        });
-    }
-</script>
+</div>
 </body>
 </html>
