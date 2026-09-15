@@ -57,7 +57,6 @@ public class AdminDashboardController {
 
         model.addAttribute("totalStock", nationalStockRepository.sumAllQuantity());
 
-        // Now real — the clinical module exists
         model.addAttribute("totalVaccinated", vaccineLogRepository.countByStatusAndIsDeletedFalse(VaccineLogStatus.VACCINATED));
         model.addAttribute("totalFailed", vaccineLogRepository.countByStatusAndIsDeletedFalse(VaccineLogStatus.FAILED));
 
