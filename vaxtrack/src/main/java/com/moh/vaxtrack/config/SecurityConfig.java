@@ -20,8 +20,8 @@ public class SecurityConfig {
     private final StaffLoginSuccessHandler staffLoginSuccessHandler;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                           PatientUserDetailsService patientUserDetailsService,
-                           StaffLoginSuccessHandler staffLoginSuccessHandler) {
+                          PatientUserDetailsService patientUserDetailsService,
+                          StaffLoginSuccessHandler staffLoginSuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.patientUserDetailsService = patientUserDetailsService;
         this.staffLoginSuccessHandler = staffLoginSuccessHandler;
@@ -78,15 +78,14 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Staff / admin security rules — checked SECOND, catches everything else.
-    // Every staff role shares this ONE login page, but lands on a DIFFERENT
-    // dashboard afterward — see StaffLoginSuccessHandler.
+   
     @Bean
     @Order(2)
     public SecurityFilterChain staffSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authenticationProvider(staffAuthenticationProvider())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/about", "/services", "/faq", "/contact").permitAll()
                         .requestMatchers("/login/staff", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/subadmin/**").hasRole("SUB_ADMIN")
