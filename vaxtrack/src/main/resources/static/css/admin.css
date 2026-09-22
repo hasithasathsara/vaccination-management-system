@@ -773,6 +773,33 @@ a {
     box-shadow: 0 0 0 3px rgba(59, 111, 232, 0.12);
 }
 
+/* Show/hide password toggle (used on Change Password / force-reset forms) */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 42px;
+    box-sizing: border-box;
+}
+
+.toggle-eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.toggle-eye:hover {
+    opacity: 0.9;
+}
+
 .modal-footer {
     display: flex;
     justify-content: flex-end;

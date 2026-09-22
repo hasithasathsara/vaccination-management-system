@@ -91,6 +91,19 @@ function closeModal(modalId) {
     }
 }
 
+// --- Shows/hides a password field's text and swaps the eye icon image to match.
+// Used by every Change Password / force-reset form. imgEl is the clicked <img>
+// itself, so each field toggles independently. ---
+function togglePw(fieldId, imgEl) {
+    const field = document.getElementById(fieldId);
+    if (!field) {
+        return;
+    }
+    const isHidden = field.type === "password";
+    field.type = isHidden ? "text" : "password";
+    imgEl.src = isHidden ? imgEl.dataset.showIcon : imgEl.dataset.hideIcon;
+}
+
 // --- Copies the generated temporary password to the clipboard (used on the
 // one-time "Sub-Admin Account Created" screen) and briefly confirms it worked. ---
 function copyGeneratedPassword(button) {
