@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>System Maintenance</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="panel" style="max-width:600px;">
+        <h3 style="margin-top:0;">Missed Appointment Sweep</h3>
+        <p style="color:#6b7280;font-size:13.5px;line-height:1.6;">
+            This runs automatically every night at midnight — it finds every booking still
+            marked BOOKED whose event date has already passed, and flips it to MISSED so
+            the patient can book that vaccine again. Use this button to run it right now
+            instead of waiting for midnight, for testing purposes.
+        </p>
+
+        <div th:if="${sweepResult != null}" class="flash-banner success">
+            <span th:text="'Swept ' + ${sweepResult} + ' overdue booking(s) to Missed.'">Result</span>
+        </div>
+
+        <form th:action="@{/admin/maintenance/sweep-missed}" method="post">
+            <button type="submit" class="btn-primary">Run Sweep Now</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

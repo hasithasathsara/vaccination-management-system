@@ -52,7 +52,8 @@
                                     onclick="return confirm('Remove this stock batch? This cannot be undone.')">🗑</button>
                         </form>
                     </th:block>
-                    <span th:unless="${s.untouched}" style="color:#9ca3af;font-size:12px;">Dispatched from</span>
+                    <span th:unless="${s.untouched}" title="Some or all of this batch has already been dispatched to a hospital, so it can no longer be corrected or removed."
+                          style="color:#9ca3af;font-size:12px;cursor:help;">🔒 Locked (dispatched from)</span>
                 </td>
             </tr>
             </tbody>
