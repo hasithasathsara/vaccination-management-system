@@ -1,6 +1,7 @@
 package com.moh.vaxtrack.config;
 
 import com.moh.vaxtrack.security.CustomUserDetailsService;
+import com.moh.vaxtrack.security.ForcePasswordResetFilter;
 import com.moh.vaxtrack.security.PatientUserDetailsService;
 import com.moh.vaxtrack.security.StaffLoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -18,22 +20,23 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final PatientUserDetailsService patientUserDetailsService;
     private final StaffLoginSuccessHandler staffLoginSuccessHandler;
+    private final ForcePasswordResetFilter forcePasswordResetFilter;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                          PatientUserDetailsService patientUserDetailsService,
-                          StaffLoginSuccessHandler staffLoginSuccessHandler) {
+                           PatientUserDetailsService patientUserDetailsService,
+                           StaffLoginSuccessHandler staffLoginSuccessHandler,
+                           ForcePasswordResetFilter forcePasswordResetFilter) {
         this.userDetailsService = userDetailsService;
         this.patientUserDetailsService = patientUserDetailsService;
         this.staffLoginSuccessHandler = staffLoginSuccessHandler;
+        this.forcePasswordResetFilter = forcePasswordResetFilter;
     }
 
-    // Shared password hashing, used by both staff and patient login
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Staff login credential check (user table)
     @Bean
     public DaoAuthenticationProvider staffAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -42,7 +45,6 @@ public class SecurityConfig {
         return provider;
     }
 
-    // Patient login credential check (patient table)
     @Bean
     public DaoAuthenticationProvider patientAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -51,7 +53,6 @@ public class SecurityConfig {
         return provider;
     }
 
-    // Patient security rules — checked FIRST (narrow match), completely separate from staff
     @Bean
     @Order(1)
     public SecurityFilterChain patientSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -78,7 +79,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     @Bean
     @Order(2)
     public SecurityFilterChain staffSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -103,7 +103,8 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login/staff")
                         .permitAll()
-                );
+                )
+                .addFilterAfter(forcePasswordResetFilter, SecurityContextHolderFilter.class);
 
         return http.build();
     }
