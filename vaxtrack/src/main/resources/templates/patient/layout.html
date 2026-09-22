@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<!-- Navbar — same theme system as the public site, different links -->
+<!-- Navbar -->
 <header class="public-navbar">
     <a th:href="@{/}" class="navbar-brand">
         <img th:src="@{/images/logo.png}" alt="VaxTrack" class="navbar-logo">
@@ -37,6 +37,9 @@
         <button class="icon-btn-public" aria-label="Notifications">
             🔔<span class="bell-dot-public"></span>
         </button>
+        <a th:href="@{/patient/profile}" class="icon-btn-public" aria-label="My Profile"
+           th:classappend="${activePage == 'profile'} ? 'active'"
+           style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">👤</a>
         <form th:action="@{/patient-logout}" method="post" style="margin:0;">
             <button type="submit" class="btn-nav-outline" style="cursor:pointer;">Logout</button>
         </form>

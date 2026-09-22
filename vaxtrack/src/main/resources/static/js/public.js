@@ -56,6 +56,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+// --- Shows/hides a password field's text and swaps the eye icon image to match.
+// Used on the Patient Change Password form. imgEl is the clicked <img> itself,
+// so each field toggles independently. ---
+function togglePw(fieldId, imgEl) {
+    const field = document.getElementById(fieldId);
+    if (!field) {
+        return;
+    }
+    const isHidden = field.type === "password";
+    field.type = isHidden ? "text" : "password";
+    imgEl.src = isHidden ? imgEl.dataset.showIcon : imgEl.dataset.hideIcon;
+}
+
 function toggleFaq(button) {
     const answer = button.nextElementSibling;
     const isOpen = button.classList.contains("open");

@@ -8,17 +8,18 @@
 <body>
 <th:block layout:fragment="content">
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-blob hero-blob-1"></div>
-        <div class="hero-blob hero-blob-2"></div>
+    <!-- HERO with Aurora background -->
+    <section class="hero aurora-wrap">
+        <div class="aurora-blob aurora-1"></div>
+        <div class="aurora-blob aurora-2"></div>
+        <div class="aurora-blob aurora-3"></div>
 
-        <div class="hero-text fade-in-up">
-            <span class="hero-tag">SAFE • EASY • DIGITAL</span>
+        <div class="hero-text" style="position:relative;z-index:1;">
+            <span class="hero-tag glass">SAFE • EASY • DIGITAL</span>
             <h1>Smart Vaccination Management, <span class="text-gradient">Made Simple</span></h1>
             <p class="hero-sub">
-                VaxTrack helps citizens conveniently manage their vaccination appointments
-                and securely access their vaccination records through one trusted platform.
+                VaxTrack helps citizens conveniently manage their vaccination appointments and
+                securely access their vaccination records through one trusted platform.
             </p>
             <div class="hero-actions">
                 <a th:href="@{/login/patient}" class="btn-hero-primary">📅 Book a Vaccination</a>
@@ -26,196 +27,279 @@
             </div>
         </div>
 
-        <div class="hero-visual fade-in-up delay-1">
+        <div class="hero-visual" style="position:relative;z-index:1;">
             <img th:src="@{/images/hero-image.png}" alt="Nurse vaccinating a child" class="hero-image">
-            <div class="hero-caption">A Healthier Tomorrow, Together</div>
+            <p class="hero-caption">A Healthier Tomorrow, Together</p>
         </div>
     </section>
 
     <!-- WHAT IS VAXTRACK -->
     <section class="section" id="what-is-vaxtrack">
-        <div class="what-is-grid fade-in-up">
+        <div class="what-is-grid">
             <div>
-                <h2 class="section-title">What is VaxTrack?</h2>
-                <p class="section-lead">One platform for smarter vaccination management.</p>
-                <p class="section-body">
-                    VaxTrack is a digital platform provided by the Ministry of Health, helping
-                    you book appointments, manage your vaccination information, and access your
+                <h2 class="section-title fade-in-up">What is VaxTrack?</h2>
+                <p class="section-lead fade-in-up">One platform for smarter vaccination management.</p>
+                <p class="section-body fade-in-up">
+                    VaxTrack is a digital platform provided by the Ministry of Health, helping you
+                    book appointments, manage your vaccination information, and access your
                     records — all in one place.
                 </p>
             </div>
             <div class="what-is-icons">
-                <div class="mini-feature">
+                <div class="mini-feature card-3d fade-in-up">
                     <span class="mini-feature-icon">📅</span>
-                    <strong>Book Easily</strong>
-                    <p>Schedule vaccination appointments</p>
+                    <div><strong>Book Easily</strong><p>Schedule vaccination appointments</p></div>
                 </div>
-                <div class="mini-feature">
-                    <span class="mini-feature-icon">📱</span>
-                    <strong>Manage Digitally</strong>
-                    <p>Receive and manage vaccination information</p>
+                <div class="mini-feature card-3d fade-in-up delay-1">
+                    <span class="mini-feature-icon">🔢</span>
+                    <div><strong>Manage Digitally</strong><p>Receive and manage vaccination information</p></div>
                 </div>
-                <div class="mini-feature">
+                <div class="mini-feature card-3d fade-in-up delay-2">
                     <span class="mini-feature-icon">📋</span>
-                    <strong>Access Records</strong>
-                    <p>View your vaccination history anytime</p>
+                    <div><strong>Access Records</strong><p>View your vaccination history anytime</p></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FEATURE GRID + HOW IT WORKS + SERVICES -->
+    <!-- ANIMATED STATS -->
     <section class="section section-alt">
-        <div class="three-col-layout">
-
+        <div class="stats-grid">
             <div class="fade-in-up">
-                <h2 class="section-title-sm">Everything you need to manage your vaccinations</h2>
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <span class="feature-icon blue">📅</span>
-                        <strong>Vaccination Appointments</strong>
-                        <p>Find available services and schedule an appointment.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-icon orange">🔲</span>
-                        <strong>Digital Booking &amp; QR Code</strong>
-                        <p>Receive a booking confirmation with a QR code.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-icon green">📄</span>
-                        <strong>Vaccination Records</strong>
-                        <p>Access your vaccination history digitally.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-icon red">⬇</span>
-                        <strong>Download Records</strong>
-                        <p>Download your record as a PDF for personal or official use.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-icon purple">🔔</span>
-                        <strong>Smart Notifications</strong>
-                        <p>Get reminders and important updates.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-icon blue">🛡</span>
-                        <strong>Secure Information</strong>
-                        <p>Your data is securely managed through VaxTrack.</p>
-                    </div>
-                </div>
+                <div class="stat-number" data-target="10000" data-suffix="+">0</div>
+                <p class="stat-label">Appointments Booked</p>
             </div>
-
             <div class="fade-in-up delay-1">
-                <h2 class="section-title-sm">How VaxTrack Works</h2>
-                <p class="section-body" style="margin-bottom:20px;">Getting vaccinated is now simpler.</p>
-                <div class="steps-list">
-                    <div class="step-item">
-                        <span class="step-number">01</span>
-                        <div><strong>Register / Sign In</strong><p>Create your VaxTrack account.</p></div>
-                    </div>
-                    <div class="step-item">
-                        <span class="step-number">02</span>
-                        <div><strong>Book</strong><p>Choose the service and available appointment.</p></div>
-                    </div>
-                    <div class="step-item">
-                        <span class="step-number">03</span>
-                        <div><strong>Attend</strong><p>Visit the vaccination location with your booking/QR code.</p></div>
-                    </div>
-                    <div class="step-item">
-                        <span class="step-number">04</span>
-                        <div><strong>Track</strong><p>Your vaccination record is updated and available through VaxTrack.</p></div>
-                    </div>
-                </div>
+                <div class="stat-number" data-target="150" data-suffix="+">0</div>
+                <p class="stat-label">Partner Hospitals</p>
             </div>
-
             <div class="fade-in-up delay-2">
-                <h2 class="section-title-sm">Vaccination Services</h2>
-                <p class="section-body" style="margin-bottom:20px;">
-                    Access vaccination services provided through the Ministry of Health.
-                </p>
-                <div class="services-mini-grid">
-                    <a th:href="@{/services}" class="service-mini-card"><span>👶</span>Childhood Vaccinations</a>
-                    <a th:href="@{/services}" class="service-mini-card"><span>🧑</span>Adult Vaccinations</a>
-                    <a th:href="@{/services}" class="service-mini-card"><span>✈</span>Travel Vaccinations</a>
-                    <a th:href="@{/services}" class="service-mini-card"><span>🛡</span>Special Programs</a>
-                    <a th:href="@{/services}" class="service-mini-card"><span>➕</span>Other MOH Services</a>
-                </div>
-                <a th:href="@{/services}" class="link-arrow">View all services →</a>
+                <div class="stat-number" data-target="25">0</div>
+                <p class="stat-label">Districts Covered</p>
             </div>
-
+            <div class="fade-in-up">
+                <div class="stat-number" data-target="99.9" data-suffix="%" data-decimal="1">0</div>
+                <p class="stat-label">Platform Uptime</p>
+            </div>
         </div>
     </section>
 
-    <!-- STATUS + WHY VAXTRACK + FAQ PREVIEW -->
+    <!-- EVERYTHING YOU NEED — Bento Grid (8 tiles, fills the grid with no gaps) -->
     <section class="section">
-        <div class="three-col-layout">
-
-            <div class="status-panel fade-in-up">
-                <div class="status-header">
-                    <span class="status-dot"></span>
-                    <strong>VaxTrack System Status</strong>
-                </div>
-                <p class="status-sub">All services operational</p>
-                <div class="status-row"><span>✔ Appointment Booking</span><span class="status-tag">Available</span></div>
-                <div class="status-row"><span>✔ Digital Records</span><span class="status-tag">Available</span></div>
-                <div class="status-row"><span>✔ Notifications</span><span class="status-tag">Available</span></div>
-            </div>
-
-            <div class="fade-in-up delay-1">
-                <h2 class="section-title-sm">Why VaxTrack?</h2>
-                <p class="section-body" style="margin-bottom:16px;">Built to make vaccination management easier.</p>
-                <div class="why-grid">
-                    <div class="why-item"><span>🛡</span><strong>Trusted</strong><p>Powered by the Ministry of Health.</p></div>
-                    <div class="why-item"><span>⚡</span><strong>Convenient</strong><p>Manage appointments and records digitally.</p></div>
-                    <div class="why-item"><span>🌐</span><strong>Accessible</strong><p>Access your information whenever you need it.</p></div>
-                    <div class="why-item"><span>🔒</span><strong>Secure</strong><p>Your data is handled with care.</p></div>
-                </div>
-            </div>
-
-            <div class="fade-in-up delay-2">
-                <h2 class="section-title-sm">Frequently Asked Questions</h2>
-                <p class="section-body" style="margin-bottom:16px;">Quick answers to common questions.</p>
-                <div class="faq-mini-list">
-                    <button class="faq-mini-item" onclick="toggleFaq(this)">
-                        How do I book a vaccination appointment? <span>+</span>
-                    </button>
-                    <div class="faq-mini-answer">
-                        Register or log in, then choose an available vaccination event near you.
-                    </div>
-
-                    <button class="faq-mini-item" onclick="toggleFaq(this)">
-                        Do I need a VaxTrack account to book? <span>+</span>
-                    </button>
-                    <div class="faq-mini-answer">
-                        Yes — a free account lets us track your dose history and generate your booking QR code.
-                    </div>
-
-                    <button class="faq-mini-item" onclick="toggleFaq(this)">
-                        How can I access my vaccination record? <span>+</span>
-                    </button>
-                    <div class="faq-mini-answer">
-                        Log in and visit your dashboard — your full history is available there anytime.
-                    </div>
-                </div>
-                <a th:href="@{/faq}" class="link-arrow">View all FAQs →</a>
-            </div>
-
+        <div class="section-heading-center fade-in-up">
+            <h2 class="section-title">Everything You Need to Manage Your Vaccinations</h2>
+            <p class="section-lead">One platform, every step covered — from booking to your digital record.</p>
         </div>
+        <div class="bento-grid">
+            <div class="bento-item bento-hero card-3d fade-in-up">
+                <span class="bento-icon">📅</span>
+                <div>
+                    <strong>Vaccination Appointments</strong>
+                    <p>Find available services and schedule an appointment in a few taps.</p>
+                </div>
+            </div>
+            <div class="bento-item card-3d fade-in-up delay-1">
+                <span class="bento-icon">▦</span>
+                <strong>Digital Booking & QR</strong>
+                <p>Get a confirmation QR code instantly.</p>
+            </div>
+            <div class="bento-item card-3d fade-in-up delay-2">
+                <span class="bento-icon">📋</span>
+                <strong>Digital Records</strong>
+                <p>Every dose logged automatically.</p>
+            </div>
+            <div class="bento-item bento-wide card-3d fade-in-up">
+                <span class="bento-icon">🔔</span>
+                <strong>Live Notifications</strong>
+                <p>Stay updated on bookings, cancellations, and reminders in real time.</p>
+            </div>
+            <div class="bento-item card-3d fade-in-up delay-1">
+                <span class="bento-icon">📄</span>
+                <strong>PDF Certificate</strong>
+                <p>Download anytime.</p>
+            </div>
+            <div class="bento-item card-3d fade-in-up delay-2">
+                <span class="bento-icon">🔒</span>
+                <strong>Secure by Design</strong>
+                <p>Protected under MOH data standards.</p>
+            </div>
+            <div class="bento-item card-3d fade-in-up">
+                <span class="bento-icon">📱</span>
+                <strong>Mobile Friendly</strong>
+                <p>Book from any device, anywhere.</p>
+            </div>
+            <div class="bento-item card-3d fade-in-up delay-1">
+                <span class="bento-icon">🗺️</span>
+                <strong>District-Wide Access</strong>
+                <p>Hospitals across every district.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW VAXTRACK WORKS — Timeline -->
+    <section class="section section-alt">
+        <div class="section-heading-center fade-in-up">
+            <h2 class="section-title">How VaxTrack Works</h2>
+            <p class="section-lead">Getting vaccinated is now simpler.</p>
+        </div>
+        <div class="timeline-wrap">
+            <div class="timeline-line"></div>
+            <div class="timeline-step fade-in-up">
+                <div class="timeline-circle">01</div>
+                <strong>Register / Sign In</strong>
+                <p>Create your VaxTrack account.</p>
+            </div>
+            <div class="timeline-step fade-in-up delay-1">
+                <div class="timeline-circle">02</div>
+                <strong>Book</strong>
+                <p>Choose the service and an available appointment.</p>
+            </div>
+            <div class="timeline-step fade-in-up delay-2">
+                <div class="timeline-circle">03</div>
+                <strong>Attend</strong>
+                <p>Visit the vaccination location with your booking QR code.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VACCINATION SERVICES -->
+    <section class="section">
+        <div class="section-heading-center fade-in-up">
+            <h2 class="section-title">Vaccination Services</h2>
+            <p class="section-lead">Access vaccination services provided through the Ministry of Health.</p>
+        </div>
+        <div class="services-grid-wide">
+            <div class="service-card-wide card-3d fade-in-up"><span>👶</span><strong>Childhood Vaccinations</strong></div>
+            <div class="service-card-wide card-3d fade-in-up delay-1"><span>🧑</span><strong>Adult Vaccinations</strong></div>
+            <div class="service-card-wide card-3d fade-in-up delay-2"><span>✈️</span><strong>Travel Vaccinations</strong></div>
+            <div class="service-card-wide card-3d fade-in-up"><span>🛡️</span><strong>Special Programs</strong></div>
+        </div>
+        <p class="text-center-link fade-in-up">
+            <a th:href="@{/services}">View all vaccination services →</a>
+        </p>
+    </section>
+
+    <!-- WHY VAXTRACK -->
+    <section class="section section-alt">
+        <div class="section-heading-center fade-in-up">
+            <h2 class="section-title">Why VaxTrack?</h2>
+            <p class="section-lead">Built to make vaccination management easier.</p>
+        </div>
+        <div class="why-grid-wide">
+            <div class="why-item-wide card-3d fade-in-up"><span>🛡️</span><strong>Trusted</strong><p>Powered by the Ministry of Health.</p></div>
+            <div class="why-item-wide card-3d fade-in-up delay-1"><span>⚡</span><strong>Convenient</strong><p>Manage appointments and records digitally.</p></div>
+            <div class="why-item-wide card-3d fade-in-up delay-2"><span>🌐</span><strong>Accessible</strong><p>Access your information whenever you need it.</p></div>
+            <div class="why-item-wide card-3d fade-in-up"><span>🔒</span><strong>Secure</strong><p>Your data is handled with care.</p></div>
+        </div>
+    </section>
+
+    <!-- SYSTEM STATUS — neon badge row -->
+    <section class="section">
+        <div class="status-bar glass fade-in-up">
+            <div class="status-bar-head">
+                <span class="status-dot"></span>
+                <div>
+                    <strong>VaxTrack System Status</strong>
+                    <p>All services operational</p>
+                </div>
+            </div>
+            <div class="status-badge-row">
+                <span class="status-badge">✓ Appointment Booking</span>
+                <span class="status-badge">✓ Digital Records</span>
+                <span class="status-badge">✓ Notifications</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ PREVIEW — smooth accordion -->
+    <section class="section section-alt">
+        <div class="section-heading-center fade-in-up">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-lead">Quick answers to common questions.</p>
+        </div>
+        <div class="fade-in-up" style="max-width:700px;margin:0 auto;">
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                How do I book a vaccination appointment? <span>+</span>
+            </button>
+            <div class="faq-mini-answer"><div class="faq-mini-answer-inner">
+                Log in to your VaxTrack account, choose your district and a hospital, then
+                select an available vaccination event. You'll receive a QR code instantly.
+            </div></div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                Do I need a VaxTrack account to book? <span>+</span>
+            </button>
+            <div class="faq-mini-answer"><div class="faq-mini-answer-inner">
+                Yes. A free account lets the system track your dose history correctly and
+                generate a secure QR code for each booking.
+            </div></div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                How can I access my vaccination record? <span>+</span>
+            </button>
+            <div class="faq-mini-answer"><div class="faq-mini-answer-inner">
+                Once logged in, your full vaccination history is available on your dashboard,
+                including the date, brand, and dose number of each vaccination received.
+            </div></div>
+        </div>
+        <p class="text-center-link fade-in-up">
+            <a th:href="@{/faq}">View all FAQs →</a>
+        </p>
     </section>
 
     <!-- CTA -->
     <section class="cta-banner fade-in-up">
         <div class="cta-content">
-            <span class="cta-icon">🛡</span>
+            <span class="cta-icon">💉</span>
             <div>
-                <strong>Ready to manage your vaccinations digitally?</strong>
-                <p>Start using VaxTrack for a simpler vaccination management experience.</p>
+                <strong>Ready to get started?</strong>
+                <p>Book your vaccination appointment in minutes.</p>
             </div>
         </div>
         <div class="cta-actions">
-            <a th:href="@{/login/patient}" class="btn-cta-outline">Book an Appointment</a>
-            <a th:href="@{/register/patient}" class="btn-cta-filled">Create an Account</a>
+            <a th:href="@{/register/patient}" class="btn-cta-filled">Create Account</a>
+            <a th:href="@{/login/patient}" class="btn-cta-outline">Login</a>
         </div>
     </section>
+
+    <!-- Animated number counters -->
+    <script>
+        function animateCounter(el) {
+            const target = parseFloat(el.dataset.target);
+            const suffix = el.dataset.suffix || "";
+            const decimals = parseInt(el.dataset.decimal || "0", 10);
+            const duration = 1600;
+            const start = performance.now();
+
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = target * eased;
+                el.textContent = value.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + suffix;
+                if (progress < 1) {
+                    requestAnimationFrame(tick);
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const counters = document.querySelectorAll(".stat-number");
+            if ("IntersectionObserver" in window && counters.length) {
+                const observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            animateCounter(entry.target);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.4 });
+                counters.forEach(function (el) { observer.observe(el); });
+            } else {
+                counters.forEach(function (el) { animateCounter(el); });
+            }
+        });
+    </script>
 
 </th:block>
 </body>

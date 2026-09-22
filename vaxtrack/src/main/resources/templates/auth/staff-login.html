@@ -28,6 +28,11 @@
                 Invalid username or password.
             </p>
 
+            <!-- Shown right after a successful temporary-password reset -->
+            <p th:if="${param.passwordChanged}" class="success-message">
+                Password changed successfully! Please log in with your new password.
+            </p>
+
             <!-- Spring Security automatically handles POST requests to /login/staff -->
             <form th:action="@{/login/staff}" method="post">
 
