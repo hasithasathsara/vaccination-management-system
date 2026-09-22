@@ -4,44 +4,167 @@
       layout:decorate="~{staff/layout}">
 <head>
     <title>Scan QR</title>
+    <style>
+        .scanner-frame-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+        .scanner-frame-wrap video {
+            width: 100%;
+            display: block;
+        }
+        .scanner-square {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 65%;
+            aspect-ratio: 1 / 1;
+            transform: translate(-50%, -50%);
+            border: 3px solid #a78bfa;
+            border-radius: 14px;
+            box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+        .scanner-square::before, .scanner-square::after {
+            content: "";
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border: 4px solid #fff;
+        }
+        .scanner-square::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 10px;
+        }
+        .scanner-square::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 10px;
+        }
+        .scanner-hint {
+            text-align: center;
+            color: #6b7280;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
 
-    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
-    <p th:if="${successMessage}" class="flash-banner success" th:text="${successMessage}">Success</p>
+    <p id="lookupError" class="flash-banner error" style="display:none;"></p>
 
     <div class="panel" style="max-width:480px;margin:0 auto;">
 
-        <div id="scannerArea" style="display:none;text-align:center;margin-bottom:16px;">
-            <video id="scannerVideo" style="width:100%;border-radius:12px;" playsinline></video>
+        <div id="scannerArea" style="display:none;margin-bottom:16px;">
+            <div class="scanner-frame-wrap">
+                <video id="scannerVideo" playsinline></video>
+                <div class="scanner-square"></div>
+            </div>
+            <p class="scanner-hint">Line the QR code up inside the square</p>
             <canvas id="scannerCanvas" style="display:none;"></canvas>
-            <button type="button" class="btn-secondary" style="margin-top:10px;" onclick="stopScanner()">Stop Camera</button>
+            <button type="button" class="btn-secondary" style="width:100%;margin-top:10px;" onclick="stopScanner()">Stop Camera</button>
         </div>
 
-        <button type="button" class="btn-primary" style="width:100%;margin-bottom:20px;" onclick="startScanner()">
+        <button type="button" class="btn-primary" id="startScanBtn" style="width:100%;margin-bottom:20px;" onclick="startScanner()">
             📷 Start Scanning (mobile camera)
         </button>
 
         <p style="text-align:center;color:#9ca3af;font-size:12.5px;margin:10px 0;">— or —</p>
 
-        <form th:action="@{/staff/scan-qr}" method="post">
-            <div class="form-group">
-                <label>Enter Booking Code</label>
-                <input type="text" id="codeInput" name="code" placeholder="e.g. VXT-7K3PQ9RM2Z" required
-                       style="text-transform:uppercase;">
-            </div>
-            <button type="submit" class="btn-primary" style="width:100%;">Verify Patient</button>
-        </form>
+        <div class="form-group">
+            <label>Enter Booking Code</label>
+            <input type="text" id="codeInput" placeholder="e.g. VXT-7K3PQ9RM2Z" style="text-transform:uppercase;">
+        </div>
+        <button type="button" class="btn-primary" id="verifyBtn" style="width:100%;" onclick="lookupCode(document.getElementById('codeInput').value)">
+            Verify Patient
+        </button>
 
         <p class="modal-note" style="margin-top:16px;">
             No camera on this device? Just type the code shown on the patient's booking screen.
         </p>
     </div>
 
-</div>
+    <!-- Patient verification popup — filled in dynamically via AJAX, no page reload -->
+    <div class="modal-overlay" id="patientModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Patient Verification</h3>
+                <button class="modal-close" onclick="closeModal('patientModal')">&times;</button>
+            </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
-<script th:src="@{/js/qr-scanner.js}"></script>
+            <div style="padding:0 24px;">
+                <div class="credentials-box" style="padding:0;margin-bottom:16px;">
+                    <div class="credential-row"><span class="credential-label">Full Name</span><span class="credential-value" id="pName"></span></div>
+                    <div class="credential-row"><span class="credential-label" id="pIdTypeLabel">ID</span><span class="credential-value" id="pIdNumber"></span></div>
+                    <div class="credential-row"><span class="credential-label">Age</span><span class="credential-value" id="pAge"></span></div>
+                    <div class="credential-row"><span class="credential-label">Phone</span><span class="credential-value" id="pPhone"></span></div>
+                    <div class="credential-row"><span class="credential-label">Disabilities</span><span class="credential-value" id="pDisabilities"></span></div>
+                </div>
+
+                <h4 style="margin-bottom:8px;">This Booking</h4>
+                <p style="color:#6b7280;font-size:13.5px;margin:0 0 16px;" id="pBookingSummary"></p>
+
+                <h4 style="margin-bottom:8px;">Vaccination History</h4>
+                <table class="data-table" id="pHistoryTable" style="margin-bottom:16px;">
+                    <thead><tr><th>Vaccine</th><th>Dose</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody id="pHistoryBody"></tbody>
+                </table>
+                <p class="empty-state" id="pHistoryEmpty" style="display:none;margin-bottom:16px;">No prior vaccination history on record.</p>
+            </div>
+
+            <div style="display:flex;gap:12px;padding:0 24px 24px;">
+                <form id="vaccinateForm" method="post" style="flex:1;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn-primary" style="width:100%;background:#16a34a;"
+                            onclick="return confirm('Confirm this patient has been vaccinated?')">
+                        ✔ Vaccinated
+                    </button>
+                </form>
+                <button type="button" class="btn-primary" style="flex:1;background:#dc2626;" onclick="openModal('failModal')">
+                    ✖ Failed / Issue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Failed/Issue reason modal -->
+    <div class="modal-overlay" id="failModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Mark as Failed / Issue</h3>
+                <button class="modal-close" onclick="closeModal('failModal')">&times;</button>
+            </div>
+            <form id="failForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Reason</label>
+                    <input type="text" name="reason" placeholder="e.g. Patient fainted, patient refused" required>
+                </div>
+                <div class="modal-footer" style="padding:20px 24px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('failModal')">Cancel</button>
+                    <button type="submit" class="btn-danger">Confirm Failed / Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- IMPORTANT: these scripts live INSIDE the layout:fragment div on purpose.
+         Anything placed outside this div gets silently dropped by the layout
+         system when the page is assembled -- it never reaches the browser. -->
+    <script th:src="@{/js/jsQR.js}"></script>
+    <script th:src="@{/js/qr-scanner.js}"></script>
+
+</div>
 </body>
 </html>

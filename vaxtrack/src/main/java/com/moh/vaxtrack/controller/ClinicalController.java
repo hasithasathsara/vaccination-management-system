@@ -3,6 +3,7 @@ package com.moh.vaxtrack.controller;
 import com.moh.vaxtrack.entity.*;
 import com.moh.vaxtrack.repository.*;
 import com.moh.vaxtrack.security.CustomUserDetails;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+import java.util.*;
 
 @Controller
 @RequestMapping("/staff")
@@ -36,30 +37,67 @@ public class ClinicalController {
         return "staff/scan-qr";
     }
 
-    @PostMapping("/scan-qr")
-    public String lookupCode(@AuthenticationPrincipal CustomUserDetails principal,
-                              @RequestParam String code,
-                              RedirectAttributes redirectAttributes) {
+    @GetMapping("/scan-qr/lookup-ajax")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> lookupAjax(@AuthenticationPrincipal CustomUserDetails principal,
+                                                            @RequestParam String code) {
 
+        Map<String, Object> response = new LinkedHashMap<>();
         Appointment appointment = appointmentRepository.findByQrCode(code.trim()).orElse(null);
         Hospital myHospital = principal.getUser().getHospital();
 
         if (appointment == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "No booking found for that code.");
-            return "redirect:/staff/scan-qr";
+            response.put("error", "No booking found for that code.");
+            return ResponseEntity.ok(response);
         }
         if (!appointment.getEvent().getHospital().getHospitalId().equals(myHospital.getHospitalId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "This booking belongs to a different hospital.");
-            return "redirect:/staff/scan-qr";
+            response.put("error", "This booking belongs to a different hospital.");
+            return ResponseEntity.ok(response);
         }
         if (appointment.getStatus() != AppointmentStatus.BOOKED) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "This booking is no longer active (status: " + appointment.getStatus() + ").");
-            return "redirect:/staff/scan-qr";
+            response.put("error", "This booking is no longer active (status: " + appointment.getStatus() + ").");
+            return ResponseEntity.ok(response);
         }
 
-        return "redirect:/staff/verify/" + appointment.getAppointmentId();
+        Patient patient = appointment.getPatient();
+        Vaccine vaccine = appointment.getEvent().getVaccine();
+
+        long completedDoses = vaccineLogRepository
+                .countByAppointment_Patient_PatientIdAndVaccine_VaccineIdAndStatusAndIsDeletedFalse(
+                        patient.getPatientId(), vaccine.getVaccineId(), VaccineLogStatus.VACCINATED);
+
+        List<VaccineLog> history = vaccineLogRepository
+                .findByAppointment_Patient_PatientIdAndIsDeletedFalseOrderByLoggedAtDesc(patient.getPatientId());
+
+        List<Map<String, Object>> historyJson = new ArrayList<>();
+        for (VaccineLog log : history) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("vaccine", log.getVaccine().getBrandName());
+            row.put("dose", log.getDoseNumber());
+            row.put("status", log.getStatus().toString());
+            row.put("date", log.getLoggedAt().toLocalDate().toString());
+            historyJson.add(row);
+        }
+
+        response.put("appointmentId", appointment.getAppointmentId());
+        response.put("patientName", patient.getFullName());
+        response.put("idType", patient.getIdType().toString());
+        response.put("idNumber", patient.getIdNumber());
+        response.put("age", patient.getAge());
+        response.put("phone", patient.getPhoneNumber());
+        response.put("disabilities", patient.getDisabilities() == null || patient.getDisabilities().isBlank()
+                ? "None reported" : patient.getDisabilities());
+        response.put("vaccineName", vaccine.getBrandName());
+        response.put("doseNumber", completedDoses + 1);
+        response.put("dosesRequired", vaccine.getDosesRequired());
+        response.put("hospitalName", appointment.getEvent().getHospital().getName());
+        response.put("eventDate", appointment.getEvent().getEventDate().toString());
+        response.put("timeSlot", appointment.getEvent().getTimeSlot());
+        response.put("history", historyJson);
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/verify/{appointmentId}")
     public String verify(@AuthenticationPrincipal CustomUserDetails principal,
@@ -113,21 +151,19 @@ public class ClinicalController {
         if (completedDoses >= vaccine.getDosesRequired()) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "This patient has already completed all required doses of " + vaccine.getBrandName() + ".");
-            return "redirect:/staff/verify/" + appointmentId;
+            return "redirect:/staff/daily-queue";
         }
 
         HospitalStock stock = hospitalStockRepository.findByHospitalAndVaccine(hospital, vaccine).orElse(null);
         if (stock == null || stock.getQuantity() <= 0) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "No " + vaccine.getBrandName() + " stock available at this hospital.");
-            return "redirect:/staff/verify/" + appointmentId;
+            return "redirect:/staff/daily-queue";
         }
 
-        // Deduct 1 dose from hospital stock
         stock.setQuantity(stock.getQuantity() - 1);
         hospitalStockRepository.save(stock);
 
-        // Create the clinical record
         VaccineLog log = new VaccineLog();
         log.setAppointment(appointment);
         log.setVaccine(vaccine);
@@ -169,7 +205,7 @@ public class ClinicalController {
         log.setAppointment(appointment);
         log.setVaccine(vaccine);
         log.setMedicalStaff(principal.getUser());
-        log.setDoseNumber((int) completedDoses + 1); // the dose this WOULD have been
+        log.setDoseNumber((int) completedDoses + 1);
         log.setStatus(VaccineLogStatus.FAILED);
         log.setIsDeleted(false);
         log.setLoggedAt(LocalDateTime.now());

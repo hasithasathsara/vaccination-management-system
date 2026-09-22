@@ -34,14 +34,11 @@
                 </td>
                 <td th:text="${#temporals.format(l.loggedAt, 'dd MMM yyyy, hh:mm a')}">Date</td>
                 <td class="actions-cell">
-                    <form th:if="${l.status.name() == 'VACCINATED'}"
-                          th:action="@{'/staff/patient-records/' + ${l.logId} + '/undo'}" method="post" class="inline-form">
-                        <button type="submit" class="btn-icon" title="Undo"
-                                onclick="return confirm('Undo this Vaccinated entry? The dose will be returned to stock.')">↩</button>
-                    </form>
+                    <button class="btn-icon" title="Edit Status"
+                            th:onclick="'openModal(\'editStatusModal' + ${l.logId} + '\')'">✎</button>
                     <form th:action="@{'/staff/patient-records/' + ${l.logId} + '/void'}" method="post" class="inline-form">
-                        <button type="submit" class="btn-icon" title="Void Entry"
-                                onclick="return confirm('Void this entry completely? This is for entirely erroneous records, e.g. the wrong patient\'s QR was scanned.')">🗑</button>
+                        <button type="submit" class="btn-icon" title="Void Entry (wrong patient scanned)"
+                                onclick="return confirm('Void this entry completely? Use this only for entirely erroneous records, e.g. the wrong patient\'s QR was scanned. This cannot be undone.')">🗑</button>
                     </form>
                 </td>
             </tr>
@@ -51,6 +48,38 @@
         <p class="empty-state" th:if="${#lists.isEmpty(logs)}">
             No clinical records at your hospital yet.
         </p>
+    </div>
+
+    <!-- Edit Status modals, one per record -->
+    <div class="modal-overlay" th:id="'editStatusModal' + ${l.logId}" th:each="l : ${logs}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Vaccination Status</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'editStatusModal' + ${l.logId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{'/staff/patient-records/' + ${l.logId} + '/edit-status'}" method="post">
+                <div style="padding:20px 24px 0;">
+                    <p class="modal-note">
+                        Changing the status for <strong th:text="${l.appointment.patient.fullName}">patient</strong>
+                        — <span th:text="${l.vaccine.brandName}">vaccine</span>, Dose
+                        <span th:text="${l.doseNumber}">1</span>. Stock is adjusted automatically:
+                        switching to Vaccinated deducts a dose, switching away from it returns one.
+                    </p>
+                </div>
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Status</label>
+                    <select name="newStatus" required>
+                        <option value="VACCINATED" th:selected="${l.status.name() == 'VACCINATED'}">Vaccinated</option>
+                        <option value="FAILED" th:selected="${l.status.name() == 'FAILED'}">Failed / Issue</option>
+                    </select>
+                </div>
+                <div class="modal-footer" style="padding:20px 24px;">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'editStatusModal' + ${l.logId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Status</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </div>

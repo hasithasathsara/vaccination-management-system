@@ -4,6 +4,7 @@ import com.moh.vaxtrack.entity.*;
 import com.moh.vaxtrack.repository.AppointmentRepository;
 import com.moh.vaxtrack.repository.HospitalRepository;
 import com.moh.vaxtrack.repository.VaccinationEventRepository;
+import com.moh.vaxtrack.repository.VaccineLogRepository;
 import com.moh.vaxtrack.security.PatientPrincipal;
 import com.moh.vaxtrack.util.QrCodeGenerator;
 import com.moh.vaxtrack.util.SriLankaDistricts;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/patient/book-appointment")
@@ -29,15 +31,18 @@ public class PatientAppointmentController {
     private final HospitalRepository hospitalRepository;
     private final VaccinationEventRepository eventRepository;
     private final AppointmentRepository appointmentRepository;
+    private final VaccineLogRepository vaccineLogRepository;
     private final QrCodeGenerator qrCodeGenerator;
 
     public PatientAppointmentController(HospitalRepository hospitalRepository,
                                          VaccinationEventRepository eventRepository,
                                          AppointmentRepository appointmentRepository,
+                                         VaccineLogRepository vaccineLogRepository,
                                          QrCodeGenerator qrCodeGenerator) {
         this.hospitalRepository = hospitalRepository;
         this.eventRepository = eventRepository;
         this.appointmentRepository = appointmentRepository;
+        this.vaccineLogRepository = vaccineLogRepository;
         this.qrCodeGenerator = qrCodeGenerator;
     }
 
@@ -49,7 +54,6 @@ public class PatientAppointmentController {
                 .findByStatusAndEventDateGreaterThanEqualOrderByEventDateAsc(VaccinationEventStatus.SCHEDULED, LocalDate.now());
 
         model.addAttribute("districtsByProvince", SriLankaDistricts.BY_PROVINCE);
-
         model.addAttribute("hospitals", activeHospitals);
         model.addAttribute("events", upcomingEvents);
 
@@ -87,20 +91,29 @@ public class PatientAppointmentController {
             return "redirect:/patient/book-appointment";
         }
 
+        Vaccine vaccine = event.getVaccine();
+
         boolean alreadyBooked = appointmentRepository.findByPatient_PatientIdAndEvent_Vaccine_VaccineIdAndStatus(
-                patient.getPatientId(), event.getVaccine().getVaccineId(), AppointmentStatus.BOOKED).isPresent();
+                patient.getPatientId(), vaccine.getVaccineId(), AppointmentStatus.BOOKED).isPresent();
         if (alreadyBooked) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "You already have an active booking for " + event.getVaccine().getBrandName() + ".");
+                    "You already have an active booking for " + vaccine.getBrandName() + ".");
             return "redirect:/patient/book-appointment";
         }
 
-        // Dose number: always 1 for now — there's no vaccine_logs history yet to check
-        // completed doses against. TODO: once Clinical Operations (VaccineLog) exists,
-        // look up the patient's completed doses for this vaccine and book the next one.
-        int doseNumber = 1;
+        long completedDoses = vaccineLogRepository
+                .countByAppointment_Patient_PatientIdAndVaccine_VaccineIdAndStatusAndIsDeletedFalse(
+                        patient.getPatientId(), vaccine.getVaccineId(), VaccineLogStatus.VACCINATED);
 
-        // Generate a unique booking code, retrying on the rare chance of a collision
+        if (completedDoses >= vaccine.getDosesRequired()) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "You have already completed all " + vaccine.getDosesRequired()
+                            + " required doses of " + vaccine.getBrandName() + ".");
+            return "redirect:/patient/book-appointment";
+        }
+
+        int doseNumber = (int) completedDoses + 1;
+
         String qrCode = qrCodeGenerator.generateBookingCode();
         while (appointmentRepository.findByQrCode(qrCode).isPresent()) {
             qrCode = qrCodeGenerator.generateBookingCode();
