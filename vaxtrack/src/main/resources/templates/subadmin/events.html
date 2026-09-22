@@ -157,6 +157,11 @@
             <form th:action="@{/subadmin/events/{id}/edit(id=${e.eventId})}" method="post">
                 <div class="form-group">
                     <label>Hospital</label>
+                    <!-- A disabled input is never submitted by the browser, so the real value
+                         has to travel as a hidden field or the server sees hospitalId=null and
+                         rejects the whole edit with "Please select a hospital" — even though
+                         the hospital was never meant to be changeable here. -->
+                    <input type="hidden" name="hospitalId" th:value="${e.hospital.hospitalId}">
                     <input type="text" th:value="${e.hospital.name}" disabled
                            style="background:#f3f4f6;color:#6b7280;">
                     <span class="optional-tag">Hospital can't be changed — cancel and create a new event instead.</span>

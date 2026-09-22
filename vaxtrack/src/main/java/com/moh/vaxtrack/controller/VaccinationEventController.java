@@ -23,7 +23,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Controller
 @RequestMapping("/subadmin/events")
 public class VaccinationEventController {
@@ -46,7 +45,6 @@ public class VaccinationEventController {
         this.assignmentRepository = assignmentRepository;
     }
 
-
     @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
         String district = principal.getUser().getDistrict();
@@ -59,13 +57,11 @@ public class VaccinationEventController {
         model.addAttribute("newEvent", new VaccinationEventForm());
         model.addAttribute("today", LocalDate.now());
 
-
         List<User> districtNurses = userRepository.findByRoleAndHospital_DistrictOrderByUserIdDesc(
                 Role.MEDICAL_STAFF, district);
         Map<Long, List<User>> nursesByHospital = districtNurses.stream()
                 .collect(Collectors.groupingBy(n -> n.getHospital().getHospitalId()));
         model.addAttribute("nursesByHospital", nursesByHospital);
-
 
         Map<Long, List<Long>> assignedNurseIdsByEvent = new HashMap<>();
         for (VaccinationEvent event : events) {
@@ -80,7 +76,6 @@ public class VaccinationEventController {
         model.addAttribute("pageTitle", "Vaccination Event Management");
         return "subadmin/events";
     }
-
 
     @PostMapping("/add")
     public String add(@AuthenticationPrincipal CustomUserDetails principal,
@@ -130,6 +125,21 @@ public class VaccinationEventController {
             return "redirect:/subadmin/events";
         }
 
+        String timeSlot = form.getStartTime() + " - " + form.getEndTime();
+
+        boolean duplicateExists = eventRepository.findByHospital_DistrictOrderByEventDateDesc(district).stream()
+                .anyMatch(e -> e.getStatus() == VaccinationEventStatus.SCHEDULED
+                        && e.getHospital().getHospitalId().equals(hospital.getHospitalId())
+                        && e.getVaccine().getVaccineId().equals(vaccine.getVaccineId())
+                        && e.getEventDate().equals(eventDate)
+                        && e.getTimeSlot().equals(timeSlot));
+        if (duplicateExists) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "An identical event already exists — same hospital, vaccine, date, and time. "
+                            + "Adjust the time or vaccine, or edit the existing event instead.");
+            return "redirect:/subadmin/events";
+        }
+
         int alreadyBooked = eventRepository.sumScheduledCapacity(hospital.getHospitalId(), eventDate, -1L);
         if (alreadyBooked + form.getCapacity() > hospital.getDailyCapacity()) {
             int remaining = hospital.getDailyCapacity() - alreadyBooked;
@@ -143,7 +153,7 @@ public class VaccinationEventController {
         event.setHospital(hospital);
         event.setVaccine(vaccine);
         event.setEventDate(eventDate);
-        event.setTimeSlot(form.getStartTime() + " - " + form.getEndTime());
+        event.setTimeSlot(timeSlot);
         event.setCapacity(form.getCapacity());
         event.setCreatedBy(principal.getUser());
         event.setStatus(VaccinationEventStatus.SCHEDULED);
@@ -155,7 +165,6 @@ public class VaccinationEventController {
                 "Vaccination event at " + hospital.getName() + " on " + eventDate + " was scheduled.");
         return "redirect:/subadmin/events";
     }
-
 
     @PostMapping("/{id}/edit")
     public String edit(@AuthenticationPrincipal CustomUserDetails principal,
@@ -213,6 +222,21 @@ public class VaccinationEventController {
             return "redirect:/subadmin/events";
         }
 
+        String timeSlot = form.getStartTime() + " - " + form.getEndTime();
+
+        boolean duplicateExists = eventRepository.findByHospital_DistrictOrderByEventDateDesc(district).stream()
+                .anyMatch(e -> !e.getEventId().equals(id)
+                        && e.getStatus() == VaccinationEventStatus.SCHEDULED
+                        && e.getHospital().getHospitalId().equals(event.getHospital().getHospitalId())
+                        && e.getVaccine().getVaccineId().equals(vaccine.getVaccineId())
+                        && e.getEventDate().equals(eventDate)
+                        && e.getTimeSlot().equals(timeSlot));
+        if (duplicateExists) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "An identical event already exists — same hospital, vaccine, date, and time.");
+            return "redirect:/subadmin/events";
+        }
+
         int alreadyBooked = eventRepository.sumScheduledCapacity(
                 event.getHospital().getHospitalId(), eventDate, event.getEventId());
         if (alreadyBooked + form.getCapacity() > event.getHospital().getDailyCapacity()) {
@@ -224,10 +248,9 @@ public class VaccinationEventController {
 
         event.setVaccine(vaccine);
         event.setEventDate(eventDate);
-        event.setTimeSlot(form.getStartTime() + " - " + form.getEndTime());
+        event.setTimeSlot(timeSlot);
         event.setCapacity(form.getCapacity());
         eventRepository.save(event);
-
 
         assignmentRepository.deleteByEventId(event.getEventId());
         saveNurseAssignments(event, event.getHospital(), nurseIds);
@@ -235,7 +258,6 @@ public class VaccinationEventController {
         redirectAttributes.addFlashAttribute("successMessage", "Event updated successfully.");
         return "redirect:/subadmin/events";
     }
-
 
     @PostMapping("/{id}/cancel")
     public String cancel(@AuthenticationPrincipal CustomUserDetails principal,
@@ -276,7 +298,6 @@ public class VaccinationEventController {
                     && nurse.getHospital().getHospitalId().equals(hospital.getHospitalId())) {
                 assignmentRepository.save(new EventNurseAssignment(event, nurse));
             }
-
         }
     }
 

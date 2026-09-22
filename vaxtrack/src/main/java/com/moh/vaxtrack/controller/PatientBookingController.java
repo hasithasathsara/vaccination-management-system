@@ -46,8 +46,8 @@ public class PatientBookingController {
     public String list(@AuthenticationPrincipal PatientPrincipal principal, Model model) {
         Long patientId = principal.getPatient().getPatientId();
 
-        model.addAttribute("activeBooking",
-                appointmentRepository.findByPatient_PatientIdAndStatus(patientId, AppointmentStatus.BOOKED).orElse(null));
+        model.addAttribute("activeBookings",
+                appointmentRepository.findByPatient_PatientIdAndStatusOrderByBookedAtDesc(patientId, AppointmentStatus.BOOKED));
         model.addAttribute("history",
                 appointmentRepository.findByPatient_PatientIdAndStatusNotOrderByBookedAtDesc(patientId, AppointmentStatus.BOOKED));
 

@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
 @Controller
 @RequestMapping("/staff/patient-records")
 public class StaffPatientRecordsController {
@@ -40,10 +39,11 @@ public class StaffPatientRecordsController {
         return "staff/patient-records";
     }
 
-
-    @PostMapping("/{logId}/undo")
-    public String undo(@AuthenticationPrincipal CustomUserDetails principal,
-                        @PathVariable Long logId, RedirectAttributes redirectAttributes) {
+    @PostMapping("/{logId}/edit-status")
+    public String editStatus(@AuthenticationPrincipal CustomUserDetails principal,
+                              @PathVariable Long logId,
+                              @RequestParam VaccineLogStatus newStatus,
+                              RedirectAttributes redirectAttributes) {
 
         VaccineLog log = vaccineLogRepository.findById(logId).orElse(null);
         if (log == null || log.getIsDeleted()
@@ -52,30 +52,47 @@ public class StaffPatientRecordsController {
             redirectAttributes.addFlashAttribute("errorMessage", "That record no longer exists.");
             return "redirect:/staff/patient-records";
         }
-        if (log.getStatus() != VaccineLogStatus.VACCINATED) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Only a Vaccinated entry can be undone.");
+        if (newStatus != VaccineLogStatus.VACCINATED && newStatus != VaccineLogStatus.FAILED) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid status selection.");
             return "redirect:/staff/patient-records";
         }
 
-        HospitalStock stock = hospitalStockRepository
-                .findByHospitalAndVaccine(log.getAppointment().getEvent().getHospital(), log.getVaccine())
-                .orElse(null);
-        if (stock != null) {
-            stock.setQuantity(stock.getQuantity() + 1);
+        VaccineLogStatus oldStatus = log.getStatus();
+        if (oldStatus == newStatus) {
+            redirectAttributes.addFlashAttribute("successMessage", "No change — status was already " + newStatus + ".");
+            return "redirect:/staff/patient-records";
+        }
+
+        Hospital hospital = log.getAppointment().getEvent().getHospital();
+        Vaccine vaccine = log.getVaccine();
+        HospitalStock stock = hospitalStockRepository.findByHospitalAndVaccine(hospital, vaccine).orElse(null);
+
+        if (oldStatus == VaccineLogStatus.VACCINATED && newStatus == VaccineLogStatus.FAILED) {
+            if (stock != null) {
+                stock.setQuantity(stock.getQuantity() + 1);
+                hospitalStockRepository.save(stock);
+            }
+        } else if (oldStatus == VaccineLogStatus.FAILED && newStatus == VaccineLogStatus.VACCINATED) {
+            if (stock == null || stock.getQuantity() <= 0) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Can't change to Vaccinated — no " + vaccine.getBrandName() + " stock available.");
+                return "redirect:/staff/patient-records";
+            }
+            stock.setQuantity(stock.getQuantity() - 1);
             hospitalStockRepository.save(stock);
         }
 
-        log.setStatus(VaccineLogStatus.PENDING);
+        log.setStatus(newStatus);
         vaccineLogRepository.save(log);
 
         Appointment appointment = log.getAppointment();
-        appointment.setStatus(AppointmentStatus.BOOKED);
+        appointment.setStatus(newStatus == VaccineLogStatus.VACCINATED
+                ? AppointmentStatus.VACCINATED : AppointmentStatus.FAILED);
         appointmentRepository.save(appointment);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Entry undone — dose returned to stock.");
+        redirectAttributes.addFlashAttribute("successMessage", "Status updated to " + newStatus + ".");
         return "redirect:/staff/patient-records";
     }
-
 
     @PostMapping("/{logId}/void")
     public String voidEntry(@AuthenticationPrincipal CustomUserDetails principal,

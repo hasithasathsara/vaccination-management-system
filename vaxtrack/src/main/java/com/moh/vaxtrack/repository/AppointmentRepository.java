@@ -14,8 +14,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByPatient_PatientIdOrderByBookedAtDesc(Long patientId);
 
-    Optional<Appointment> findByPatient_PatientIdAndStatus(Long patientId, AppointmentStatus status);
-
     Optional<Appointment> findByPatient_PatientIdAndEvent_Vaccine_VaccineIdAndStatus(
             Long patientId, Long vaccineId, AppointmentStatus status);
 
@@ -29,5 +27,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByEvent_Hospital_HospitalIdAndEvent_EventDateOrderByEvent_TimeSlotAsc(
             Long hospitalId, LocalDate eventDate);
+
+    List<Appointment> findByStatusAndEvent_EventDateLessThanEqual(AppointmentStatus status, LocalDate date);
 
 }
