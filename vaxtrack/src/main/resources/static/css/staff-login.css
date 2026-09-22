@@ -78,6 +78,15 @@ body {
     margin-bottom: 15px;
 }
 
+.success-message {
+    background: #e7f8ee;
+    color: #16a34a;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
 form {
     text-align: left;
 }
