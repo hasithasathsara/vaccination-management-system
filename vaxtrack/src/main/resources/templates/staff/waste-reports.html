@@ -8,47 +8,51 @@
 <body>
 <div layout:fragment="content">
 
-    <!-- Flash banners -->
-    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
-        <span th:text="${successMessage}">Success</span>
-    </div>
-    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
-        <span th:text="${errorMessage}">Error</span>
-    </div>
+    <p th:if="${successMessage}" class="flash-banner success" th:text="${successMessage}">Success</p>
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
 
-    <!-- Toolbar -->
     <div class="toolbar">
-        <p style="color:#6b7280;font-size:13.5px;margin:0;">
+        <p style="margin:0;color:#6b7280;font-size:13.5px;">
             Report clinical waste for collection. This is your own submission history only.
         </p>
         <button class="btn-primary" onclick="openModal('addWasteModal')">+ Report Waste</button>
     </div>
 
-    <!-- Reports table -->
     <div class="panel">
         <table class="data-table" th:if="${not #lists.isEmpty(reports)}">
             <thead>
             <tr>
                 <th>Waste Type</th>
                 <th>Quantity</th>
+                <th>Notes</th>
                 <th>Reported On</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="r : ${reports}">
-                <td th:text="${r.wasteType}">Type</td>
+                <td th:text="${r.wasteType}">SYRINGES</td>
                 <td th:text="${r.quantity}">0</td>
+                <td th:text="${r.notes} ?: '—'">Notes</td>
                 <td th:text="${#temporals.format(r.reportedAt, 'dd MMM yyyy, hh:mm a')}">Date</td>
+                <td class="actions-cell">
+                    <button class="btn-icon" title="Edit"
+                            th:onclick="'openModal(\'editWasteModal' + ${r.wasteReportId} + '\')'">✎</button>
+                    <form th:action="@{'/staff/waste-reports/' + ${r.wasteReportId} + '/delete'}" method="post" class="inline-form">
+                        <button type="submit" class="btn-icon" title="Delete"
+                                onclick="return confirm('Delete this waste report? This cannot be undone.')">🗑</button>
+                    </form>
+                </td>
             </tr>
             </tbody>
         </table>
 
         <p class="empty-state" th:if="${#lists.isEmpty(reports)}">
-            You haven't reported any waste yet. Click "Report Waste" to submit your first entry.
+            You haven't reported any waste yet.
         </p>
     </div>
 
-    <!-- Report Waste modal -->
+    <!-- Add Waste modal -->
     <div class="modal-overlay" id="addWasteModal">
         <div class="modal">
             <div class="modal-header">
@@ -56,20 +60,66 @@
                 <button class="modal-close" onclick="closeModal('addWasteModal')">&times;</button>
             </div>
             <form th:action="@{/staff/waste-reports/add}" method="post">
-                <div class="form-group">
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Hospital</label>
+                    <input type="text" th:value="${#authentication.principal.user.hospital.name}" disabled
+                           style="background:#f3f4f6;color:#6b7280;">
+                </div>
+                <div class="form-group" style="padding:0 24px;">
                     <label>Waste Type</label>
                     <select name="wasteType" required>
                         <option value="">Select waste type...</option>
-                        <option th:each="type : ${wasteTypes}" th:value="${type}" th:text="${type}"></option>
+                        <option value="SYRINGES">Syringes</option>
+                        <option value="VACCINE_BOTTLES">Vaccine Bottles</option>
+                        <option value="TISSUES">Tissues</option>
+                        <option value="OTHER">Other</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="padding:0 24px;">
                     <label>Quantity</label>
                     <input type="number" name="quantity" min="1" placeholder="e.g. 15" required>
                 </div>
-                <div class="modal-footer">
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Notes <span class="optional-tag">(optional)</span></label>
+                    <input type="text" name="notes" placeholder="e.g. Empty vials from Moderna batch BN-2026-0417">
+                </div>
+                <div class="modal-footer" style="padding:20px 24px;">
                     <button type="button" class="btn-secondary" onclick="closeModal('addWasteModal')">Cancel</button>
                     <button type="submit" class="btn-primary">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit modals, one per report -->
+    <div class="modal-overlay" th:id="'editWasteModal' + ${r.wasteReportId}" th:each="r : ${reports}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Waste Report</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'editWasteModal' + ${r.wasteReportId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{'/staff/waste-reports/' + ${r.wasteReportId} + '/edit'}" method="post">
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Waste Type</label>
+                    <select name="wasteType" required>
+                        <option value="SYRINGES" th:selected="${r.wasteType.name() == 'SYRINGES'}">Syringes</option>
+                        <option value="VACCINE_BOTTLES" th:selected="${r.wasteType.name() == 'VACCINE_BOTTLES'}">Vaccine Bottles</option>
+                        <option value="TISSUES" th:selected="${r.wasteType.name() == 'TISSUES'}">Tissues</option>
+                        <option value="OTHER" th:selected="${r.wasteType.name() == 'OTHER'}">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" th:value="${r.quantity}" min="1" required>
+                </div>
+                <div class="form-group" style="padding:0 24px;">
+                    <label>Notes <span class="optional-tag">(optional)</span></label>
+                    <input type="text" name="notes" th:value="${r.notes}">
+                </div>
+                <div class="modal-footer" style="padding:20px 24px;">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'editWasteModal' + ${r.wasteReportId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>

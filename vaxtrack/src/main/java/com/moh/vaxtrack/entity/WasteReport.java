@@ -19,6 +19,8 @@ public class WasteReport {
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+    @Column(name = "notes")
+    private String notes;
 
     @Column(name = "reported_at", nullable = false)
     private LocalDateTime reportedAt;
@@ -40,6 +42,8 @@ public class WasteReport {
     public void setWasteType(WasteType wasteType) { this.wasteType = wasteType; }
     public Integer getQuantity() { return quantity; }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
     public LocalDateTime getReportedAt() { return reportedAt; }
     public void setReportedAt(LocalDateTime reportedAt) { this.reportedAt = reportedAt; }
     public Hospital getHospital() { return hospital; }

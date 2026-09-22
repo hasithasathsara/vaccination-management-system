@@ -26,33 +26,77 @@ public class WasteReportController {
     public String list(@AuthenticationPrincipal CustomUserDetails principal, Model model) {
         model.addAttribute("reports",
                 wasteReportRepository.findByReportedBy_UserIdOrderByReportedAtDesc(principal.getUser().getUserId()));
-        model.addAttribute("wasteTypes", WasteType.values());
-        model.addAttribute("activePage", "waste");
+        model.addAttribute("activePage", "wasteReports");
         model.addAttribute("pageTitle", "Waste Reporting Management");
         return "staff/waste-reports";
     }
 
-    // Submit a new report
     @PostMapping("/add")
     public String add(@AuthenticationPrincipal CustomUserDetails principal,
                        @RequestParam WasteType wasteType,
                        @RequestParam Integer quantity,
+                       @RequestParam(required = false) String notes,
                        RedirectAttributes redirectAttributes) {
 
-        if (quantity == null || quantity < 1) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be at least 1.");
+        if (quantity == null || quantity <= 0) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be a positive number.");
             return "redirect:/staff/waste-reports";
         }
 
         WasteReport report = new WasteReport();
         report.setWasteType(wasteType);
         report.setQuantity(quantity);
+        report.setNotes(notes);
         report.setHospital(principal.getUser().getHospital());
         report.setReportedBy(principal.getUser());
         report.setReportedAt(LocalDateTime.now());
         wasteReportRepository.save(report);
 
         redirectAttributes.addFlashAttribute("successMessage", "Waste report submitted.");
+        return "redirect:/staff/waste-reports";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String edit(@AuthenticationPrincipal CustomUserDetails principal,
+                        @PathVariable Long id,
+                        @RequestParam WasteType wasteType,
+                        @RequestParam Integer quantity,
+                        @RequestParam(required = false) String notes,
+                        RedirectAttributes redirectAttributes) {
+
+        WasteReport report = wasteReportRepository.findById(id).orElse(null);
+        if (report == null || !report.getReportedBy().getUserId().equals(principal.getUser().getUserId())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "That report no longer exists.");
+            return "redirect:/staff/waste-reports";
+        }
+        if (quantity == null || quantity <= 0) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Quantity must be a positive number.");
+            return "redirect:/staff/waste-reports";
+        }
+
+        report.setWasteType(wasteType);
+        report.setQuantity(quantity);
+        report.setNotes(notes);
+        wasteReportRepository.save(report);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Report updated.");
+        return "redirect:/staff/waste-reports";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@AuthenticationPrincipal CustomUserDetails principal,
+                          @PathVariable Long id,
+                          RedirectAttributes redirectAttributes) {
+
+        WasteReport report = wasteReportRepository.findById(id).orElse(null);
+        if (report == null || !report.getReportedBy().getUserId().equals(principal.getUser().getUserId())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "That report no longer exists.");
+            return "redirect:/staff/waste-reports";
+        }
+
+        wasteReportRepository.delete(report);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Report deleted.");
         return "redirect:/staff/waste-reports";
     }
 }
