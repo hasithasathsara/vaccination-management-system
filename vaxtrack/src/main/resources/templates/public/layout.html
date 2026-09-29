@@ -6,9 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:title-pattern="$CONTENT_TITLE - VaxTrack">VaxTrack</title>
-    <link rel="stylesheet" th:href="@{/css/public.css}">
+    <!-- The "?v=" on these two is a cache-buster. Browsers cache CSS/JS aggressively by
+         default, and Spring Boot doesn't add any hash/versioning of its own — so after any
+         future CSS or JS change, a browser that already visited the site can keep using its
+         OLD cached copy and never see the update (this is very likely why the theme toggle
+         looked broken: an old cached public-premium.css from before dark mode was finished).
+         Bump the number after "v=" any time public.css / public-premium.css / public.js
+         change, and every visitor is guaranteed to fetch the new file. -->
+    <link rel="stylesheet" th:href="@{/css/public.css(v=2)}">
 
-    <link rel="stylesheet" th:href="@{/css/public-premium.css}">
+    <link rel="stylesheet" th:href="@{/css/public-premium.css(v=2)}">
 
 </head>
 <body>
@@ -118,6 +125,6 @@
     </div>
 </footer>
 
-<script th:src="@{/js/public.js}"></script>
+<script th:src="@{/js/public.js(v=2)}"></script>
 </body>
 </html>
