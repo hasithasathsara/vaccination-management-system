@@ -17,13 +17,16 @@ public class DispatchService {
     private final NationalStockRepository nationalStockRepository;
     private final HospitalStockRepository hospitalStockRepository;
     private final StockRequestRepository stockRequestRepository;
+    private final StockAllocationStrategy stockAllocationStrategy;
 
     public DispatchService(NationalStockRepository nationalStockRepository,
                             HospitalStockRepository hospitalStockRepository,
-                            StockRequestRepository stockRequestRepository) {
+                            StockRequestRepository stockRequestRepository,
+                            StockAllocationStrategy stockAllocationStrategy) {
         this.nationalStockRepository = nationalStockRepository;
         this.hospitalStockRepository = hospitalStockRepository;
         this.stockRequestRepository = stockRequestRepository;
+        this.stockAllocationStrategy = stockAllocationStrategy;
     }
 
     @Transactional
@@ -31,17 +34,17 @@ public class DispatchService {
 
         Long vaccineId = request.getVaccine().getVaccineId();
 
-        // Automatic Rejection Rule: block the whole thing if there isn't enough stock
+        // Check the total available stock before starting the dispatch.
+        // If there is not enough stock, the request is rejected.
         long available = nationalStockRepository.sumQuantityByVaccine(vaccineId);
         if (available < dispatchQuantity) {
             throw new InsufficientStockException(available);
         }
 
-        // Deduct across batches, soonest-expiring first (FEFO) — a batch closer
-        // to expiry gets used up before a fresher one.
+        // Get the stock batches using the selected allocation strategy.
+        // Currently, FEFO is used, so the batch with the earliest expiry is used first.
         int remaining = dispatchQuantity;
-        List<NationalStock> batches = nationalStockRepository
-                .findByVaccine_VaccineIdAndQuantityGreaterThanOrderByExpiryDateAsc(vaccineId, 0);
+        List<NationalStock> batches = stockAllocationStrategy.selectBatches(vaccineId);
 
         for (NationalStock batch : batches) {
             if (remaining <= 0) {
@@ -53,8 +56,8 @@ public class DispatchService {
             remaining -= deductFromThisBatch;
         }
 
-        // Credit the hospital's own stock — increment if they already have some
-        // of this vaccine, otherwise start a new running balance at this amount.
+        // Add the dispatched quantity to the hospital stock.
+        // If the hospital does not have this vaccine yet, create a new stock record.
         HospitalStock hospitalStock = hospitalStockRepository
                 .findByHospitalAndVaccine(request.getHospital(), request.getVaccine())
                 .orElseGet(() -> {
@@ -67,7 +70,8 @@ public class DispatchService {
         hospitalStock.setQuantity(hospitalStock.getQuantity() + dispatchQuantity);
         hospitalStockRepository.save(hospitalStock);
 
-        // Mark the request resolved
+        // Mark the stock request as dispatched and save the dispatch details.
+
         request.setStatus(StockRequestStatus.DISPATCHED);
         request.setDispatchedQuantity(dispatchQuantity);
         request.setResolvedAt(LocalDateTime.now());
