@@ -2,9 +2,9 @@ package com.moh.vaxtrack.scheduler;
 
 import com.moh.vaxtrack.entity.Appointment;
 import com.moh.vaxtrack.entity.AppointmentStatus;
-import com.moh.vaxtrack.entity.Notification;
+import com.moh.vaxtrack.event.AppointmentMissedEvent;
 import com.moh.vaxtrack.repository.AppointmentRepository;
-import com.moh.vaxtrack.repository.NotificationRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,12 +17,12 @@ import java.util.List;
 public class MissedAppointmentScheduler {
 
     private final AppointmentRepository appointmentRepository;
-    private final NotificationRepository notificationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MissedAppointmentScheduler(AppointmentRepository appointmentRepository,
-                                       NotificationRepository notificationRepository) {
+                                       ApplicationEventPublisher eventPublisher) {
         this.appointmentRepository = appointmentRepository;
-        this.notificationRepository = notificationRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Scheduled(fixedRate = 5 * 60 * 1000)
@@ -48,11 +48,9 @@ public class MissedAppointmentScheduler {
             appointmentRepository.save(appointment);
             sweptCount++;
 
-            String message = "Your booking for " + appointment.getEvent().getVaccine().getBrandName()
-                    + " at " + appointment.getEvent().getHospital().getName()
-                    + " on " + appointment.getEvent().getEventDate()
-                    + " was marked as missed since the appointment time passed. You can book again anytime.";
-            notificationRepository.save(new Notification(appointment.getPatient(), message));
+
+            // Observer Pattern: Publishes an event when a booked appointment becomes MISSED.
+            eventPublisher.publishEvent(new AppointmentMissedEvent(appointment));
         }
 
         return sweptCount;
