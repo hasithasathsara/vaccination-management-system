@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{subadmin/layout}">
+<head>
+    <title>Hospital Staff Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input type="text" id="staffSearch" class="search-input" data-table-target="staffTable"
+               placeholder="Search by username or hospital...">
+        <button class="btn-primary" onclick="openModal('addStaffModal')">+ Add Medical Staff</button>
+    </div>
+
+    <!-- Staff table -->
+    <div class="panel">
+        <table class="data-table" id="staffTable" th:if="${not #lists.isEmpty(staff)}">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Assigned Hospital</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${staff}">
+                <td th:text="${s.username}">username</td>
+                <td th:text="${s.hospital.name}">Hospital</td>
+                <td th:text="${s.email} ?: '—'">email</td>
+                <td th:text="${s.phoneNumber} ?: '—'">phone</td>
+                <td>
+                    <span class="badge" th:classappend="${s.status.name() == 'ACTIVE'} ? 'active' : 'inactive'"
+                          th:text="${s.status}">ACTIVE</span>
+                </td>
+                <td class="actions-cell">
+                    <button class="btn-icon" title="Reassign hospital"
+                            th:onclick="'openModal(\'reassignModal' + ${s.userId} + '\')'">🏥</button>
+
+                    <form th:action="@{/subadmin/hospital-staff/{id}/toggle-status(id=${s.userId})}" method="post"
+                          class="inline-form">
+                        <button type="submit" class="btn-icon"
+                                th:title="${s.status.name() == 'ACTIVE'} ? 'Suspend' : 'Reactivate'"
+                                th:onclick="${s.status.name() == 'ACTIVE'} ? 'return confirm(\'Suspend this staff account?\')' : null">
+                            <span th:text="${s.status.name() == 'ACTIVE'} ? '⛔' : '↺'">⛔</span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(staff)}">
+            No medical staff yet. Click "Add Medical Staff" to create the first account.
+        </p>
+    </div>
+
+    <!-- Add Medical Staff modal -->
+    <div class="modal-overlay" id="addStaffModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Medical Staff</h3>
+                <button class="modal-close" onclick="closeModal('addStaffModal')">&times;</button>
+            </div>
+            <form th:action="@{/subadmin/hospital-staff/add}" th:object="${newStaff}" method="post">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" th:field="*{username}" placeholder="e.g. nurse.silva" required>
+                </div>
+                <div class="form-group">
+                    <label>Assigned Hospital</label>
+                    <select th:field="*{hospitalId}" required>
+                        <option value="">Select hospital in your district...</option>
+                        <option th:each="h : ${hospitals}" th:value="${h.hospitalId}" th:text="${h.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email <span class="optional-tag">(optional)</span></label>
+                    <input type="email" th:field="*{email}" placeholder="e.g. nurse@hospital.lk">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number <span class="optional-tag">(optional)</span></label>
+                    <input type="text" th:field="*{phoneNumber}" placeholder="e.g. 0771234567">
+                </div>
+                <p class="modal-note">
+                    A secure temporary password will be generated automatically. You'll see it
+                    once on the next screen — copy it and share it, since it can't be shown again.
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addStaffModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reassign hospital modals, one per staff member -->
+    <div class="modal-overlay" th:id="'reassignModal' + ${s.userId}" th:each="s : ${staff}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Reassign Hospital</h3>
+                <button class="modal-close" th:onclick="'closeModal(\'reassignModal' + ${s.userId} + '\')'">&times;</button>
+            </div>
+            <form th:action="@{/subadmin/hospital-staff/{id}/reassign(id=${s.userId})}" method="post">
+                <div class="form-group">
+                    <label>Currently at</label>
+                    <input type="text" th:value="${s.hospital.name}" disabled style="background:#f3f4f6;color:#6b7280;">
+                </div>
+                <div class="form-group">
+                    <label>New Hospital</label>
+                    <select name="hospitalId" required>
+                        <option th:each="h : ${hospitals}" th:value="${h.hospitalId}" th:text="${h.name}"
+                                th:selected="${h.hospitalId == s.hospital.hospitalId}"></option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                            th:onclick="'closeModal(\'reassignModal' + ${s.userId} + '\')'">Cancel</button>
+                    <button type="submit" class="btn-primary">Reassign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- One-time generated credentials modal -->
+    <div class="modal-overlay no-outside-close" id="credentialsModal" th:if="${generatedPassword}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✅ Medical Staff Account Created</h3>
+            </div>
+            <div class="credentials-box">
+                <p class="modal-note">
+                    Copy these details now and share them. For security, this password is
+                    <strong>never shown again</strong> after you leave this page.
+                </p>
+                <div class="credential-row">
+                    <span class="credential-label">Username</span>
+                    <span class="credential-value" th:text="${generatedUsername}">username</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Temporary Password</span>
+                    <span class="credential-value" id="generatedPasswordText" th:text="${generatedPassword}">password</span>
+                </div>
+                <button type="button" class="btn-secondary" onclick="copyGeneratedPassword(this)">📋 Copy Password</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" onclick="closeModal('credentialsModal')">I've Saved This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-open credentials modal -->
+    <script th:if="${generatedPassword}">
+        document.addEventListener("DOMContentLoaded", function () {
+            openModal('credentialsModal');
+        });
+    </script>
+
+</div>
+</body>
+</html>

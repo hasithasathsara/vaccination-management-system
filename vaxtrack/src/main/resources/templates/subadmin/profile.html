@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{subadmin/layout}">
+<head>
+    <title>My Profile</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <p th:if="${successMessage}" class="flash-banner success" th:text="${successMessage}">Success</p>
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
+
+    <div class="panel" style="max-width:520px;margin-bottom:24px;">
+        <h3 style="margin-top:0;">Account Details</h3>
+        <form th:action="@{/staff-profile/update}" method="post">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" th:value="${user.username}" disabled style="background:#f3f4f6;color:#6b7280;">
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <input type="text" value="Sub Administrator" disabled style="background:#f3f4f6;color:#6b7280;">
+            </div>
+            <div class="form-group">
+                <label>Assigned District</label>
+                <input type="text" th:value="${user.district}" disabled style="background:#f3f4f6;color:#6b7280;">
+                <span class="optional-tag">Your district can't be changed after your account is created.</span>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" th:value="${user.email}">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phoneNumber" th:value="${user.phoneNumber}">
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">Save Changes</button>
+        </form>
+    </div>
+
+    <div class="panel" style="max-width:520px;">
+        <h3 style="margin-top:0;">Change Password</h3>
+        <form th:action="@{/staff-profile/change-password}" method="post">
+            <div class="form-group">
+                <label>Current Password</label>
+                <div class="password-wrapper">
+                    <input type="password" name="currentPassword" id="currentPassword" required>
+                    <img th:src="@{/images/hide.png}" th:data-show-icon="@{/images/show.png}"
+                         th:data-hide-icon="@{/images/hide.png}" class="toggle-eye"
+                         alt="Toggle password visibility" onclick="togglePw('currentPassword', this)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" name="newPassword" id="newPassword" minlength="6" required>
+                    <img th:src="@{/images/hide.png}" th:data-show-icon="@{/images/show.png}"
+                         th:data-hide-icon="@{/images/hide.png}" class="toggle-eye"
+                         alt="Toggle password visibility" onclick="togglePw('newPassword', this)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" name="confirmPassword" id="confirmPassword" minlength="6" required>
+                    <img th:src="@{/images/hide.png}" th:data-show-icon="@{/images/show.png}"
+                         th:data-hide-icon="@{/images/hide.png}" class="toggle-eye"
+                         alt="Toggle password visibility" onclick="togglePw('confirmPassword', this)">
+                </div>
+            </div>
+            <button type="submit" class="btn-secondary" style="width:100%;">Change Password</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Change Your Password - VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body style="background:#f4f6fb;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+
+<div class="panel" style="max-width:420px;width:100%;">
+    <h2 style="margin-top:0;">Set a New Password</h2>
+    <p style="color:#6b7280;font-size:13.5px;line-height:1.6;">
+        Hi <strong th:text="${username}">username</strong> — your account was created with a
+        temporary password. You need to set your own before continuing.
+    </p>
+
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
+
+    <form th:action="@{/staff-profile/force-reset-password}" method="post">
+        <div class="form-group">
+            <label>Current (Temporary) Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="currentPassword" id="currentPassword" required>
+                <img th:src="@{/images/hide.png}" th:data-show-icon="@{/images/show.png}"
+                     th:data-hide-icon="@{/images/hide.png}" class="toggle-eye"
+                     alt="Toggle password visibility" onclick="togglePw('currentPassword', this)">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>New Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="newPassword" id="newPassword" minlength="6" required>
+                <img th:src="@{/images/hide.png}" th:data-show-icon="@{/images/show.png}"
+                     th:data-hide-icon="@{/images/hide.png}" class="toggle-eye"
+                     alt="Toggle password visibility" onclick="togglePw('newPassword', this)">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Confirm New Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="confirmPassword" id="confirmPassword" minlength="6" required>
+                <img th:src="@{/images/hide.png}" th:data-show-icon="@{/images/show.png}"
+                     th:data-hide-icon="@{/images/hide.png}" class="toggle-eye"
+                     alt="Toggle password visibility" onclick="togglePw('confirmPassword', this)">
+            </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;">Set New Password & Continue</button>
+    </form>
+</div>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

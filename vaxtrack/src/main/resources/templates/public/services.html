@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{public/layout}">
+<head>
+    <title>Vaccination Services</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+
+    <section class="page-hero fade-in-up">
+        <span class="hero-tag">OUR SERVICES</span>
+        <h1>Vaccination Services for Every Stage of Life</h1>
+        <p class="hero-sub">
+            Access vaccination programs provided through the Ministry of Health, all
+            bookable through your VaxTrack account.
+        </p>
+    </section>
+
+    <section class="section">
+        <div class="feature-grid fade-in-up" style="max-width:1100px;margin:0 auto;">
+            <div class="feature-card">
+                <span class="feature-icon blue">👶</span>
+                <strong>Childhood Vaccinations</strong>
+                <p>Scheduled immunizations for infants and children, following the national vaccination calendar.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon purple">🧑</span>
+                <strong>Adult Vaccinations</strong>
+                <p>Booster doses and adult immunization programs available at district hospitals nationwide.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon blue">✈</span>
+                <strong>Travel Vaccinations</strong>
+                <p>Vaccinations required or recommended for international travel.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon green">🛡</span>
+                <strong>Special Programs</strong>
+                <p>Targeted vaccination drives for specific health campaigns and at-risk groups.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon red">➕</span>
+                <strong>Other MOH Services</strong>
+                <p>Additional public health services offered through the Ministry of Health.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon orange">📄</span>
+                <strong>Digital Certificates</strong>
+                <p>Download an official record of your vaccination history at any time.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-alt">
+        <h2 class="section-title-sm" style="text-align:center;">How Booking Works</h2>
+        <div class="steps-list fade-in-up" style="max-width:700px;margin:0 auto;">
+            <div class="step-item">
+                <span class="step-number">01</span>
+                <div><strong>Log in or register</strong><p>Create a free VaxTrack account with your NIC or Birth Certificate number.</p></div>
+            </div>
+            <div class="step-item">
+                <span class="step-number">02</span>
+                <div><strong>Choose your district and hospital</strong><p>Pick a vaccination event that fits your schedule.</p></div>
+            </div>
+            <div class="step-item">
+                <span class="step-number">03</span>
+                <div><strong>Get your QR code</strong><p>Your booking generates a secure, date-specific QR code instantly.</p></div>
+            </div>
+            <div class="step-item">
+                <span class="step-number">04</span>
+                <div><strong>Attend and track</strong><p>Show your QR code at your appointment — your record updates automatically.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-banner fade-in-up">
+        <div class="cta-content">
+            <span class="cta-icon">📅</span>
+            <div>
+                <strong>Ready to book your next dose?</strong>
+                <p>Log in to see available vaccination events near you.</p>
+            </div>
+        </div>
+        <div class="cta-actions">
+            <a th:href="@{/login/patient}" class="btn-cta-outline">Book an Appointment</a>
+            <a th:href="@{/register/patient}" class="btn-cta-filled">Create an Account</a>
+        </div>
+    </section>
+
+</th:block>
+</body>
+</html>

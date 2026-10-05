@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{public/layout}">
+<head>
+    <title>FAQ</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+
+    <section class="page-hero fade-in-up">
+        <span class="hero-tag">FAQ</span>
+        <h1>Frequently Asked Questions</h1>
+        <p class="hero-sub">Everything you need to know about using VaxTrack.</p>
+    </section>
+
+    <section class="section">
+        <div class="faq-full-list fade-in-up" style="max-width:800px;margin:0 auto;">
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                How do I book a vaccination appointment? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Log in to your VaxTrack account, choose your district and a hospital, then
+                select an available vaccination event. You'll receive a QR code instantly.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                Do I need a VaxTrack account to book? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Yes. A free account lets the system track your dose history correctly and
+                generate a secure QR code for each booking.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                How can I access my vaccination record? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Once logged in, your full vaccination history is available on your dashboard,
+                including the date, brand, and dose number of each vaccination received.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                Can I download my vaccination record? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Yes — a downloadable certificate is available from your dashboard once you
+                have at least one completed vaccination on record.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                What if I don't have a National Identity Card? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                If you're under 18 and don't yet have an NIC, you can register using your
+                Birth Certificate number instead.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                What happens if I miss my appointment? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Missed appointments are automatically marked and you'll see a notification
+                prompting you to rebook the next time you log in — no need to call anyone.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                Can I cancel a booking? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Yes, you can cancel any upcoming appointment from your dashboard up until
+                midnight the night before — this immediately frees the slot for someone else.
+            </div>
+
+            <button class="faq-mini-item" onclick="toggleFaq(this)">
+                Is my data secure? <span>+</span>
+            </button>
+            <div class="faq-mini-answer">
+                Your information is managed under the Ministry of Health's data protection
+                standards and is never shared without authorization.
+            </div>
+
+        </div>
+    </section>
+
+    <section class="cta-banner fade-in-up">
+        <div class="cta-content">
+            <span class="cta-icon">💬</span>
+            <div>
+                <strong>Still have questions?</strong>
+                <p>Our support team is here to help.</p>
+            </div>
+        </div>
+        <div class="cta-actions">
+            <a th:href="@{/contact}" class="btn-cta-filled">Contact Us</a>
+        </div>
+    </section>
+
+</th:block>
+</body>
+</html>

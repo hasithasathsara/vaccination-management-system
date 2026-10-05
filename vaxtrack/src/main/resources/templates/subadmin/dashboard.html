@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{subadmin/layout}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="page-header">
+        <p class="welcome-text">Welcome back,</p>
+        <h2 class="welcome-name" th:text="${username}">Sub Admin</h2>
+        <p class="welcome-sub" th:text="|Here's what's happening in ${district} District.|">District info</p>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Vaccinated</span>
+                <span class="stat-value" th:text="${totalVaccinated}">0</span>
+                <span class="stat-note">Live once clinical module is active</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">✖</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Failed / Missed</span>
+                <span class="stat-value" th:text="${totalFailed}">0</span>
+                <span class="stat-note">Live once clinical module is active</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">📅</div>
+            <div class="stat-body">
+                <span class="stat-label">Total Events</span>
+                <span class="stat-value" th:text="${totalEvents}">0</span>
+                <span class="stat-note">Live once events are scheduled</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">💉</div>
+            <div class="stat-body">
+                <span class="stat-label">Available Stock (Doses)</span>
+                <span class="stat-value" th:text="${availableStock}">0</span>
+                <span class="stat-note">Live once inventory module is active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vaccination overview (chart comes once real data exists) -->
+    <div class="panel">
+        <h3 class="panel-title">Vaccination Overview</h3>
+        <p class="empty-state">
+            Charts will appear here once vaccination events and clinical records exist.
+        </p>
+    </div>
+
+    <div class="two-col">
+
+        <!-- Upcoming events -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Upcoming Vaccination Events</h3>
+                <a th:href="@{/subadmin/events}" class="link-btn">View All →</a>
+            </div>
+
+            <table class="data-table" th:if="${not #lists.isEmpty(upcomingEvents)}">
+                <thead>
+                <tr>
+                    <th>Hospital</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Booked</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${upcomingEvents}">
+                    <td th:text="${e.hospital.name}">Hospital</td>
+                    <td th:text="${e.eventDate}">Date</td>
+                    <td th:text="${e.timeSlot}">Time</td>
+                    <td th:text="'0 / ' + ${e.capacity}">0 / 0</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(upcomingEvents)}">
+                No events scheduled yet. Create one from Vaccination Event Management.
+            </p>
+        </div>
+
+        <!-- Inventory requests -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Inventory Requests</h3>
+                <a th:href="@{/subadmin/stock-requests}" class="link-btn">View All →</a>
+            </div>
+
+            <table class="data-table" th:if="${not #lists.isEmpty(inventoryRequests)}">
+                <thead>
+                <tr>
+                    <th>Hospital</th>
+                    <th>Vaccine</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${inventoryRequests}">
+                    <td th:text="${r.hospital.name}">Hospital</td>
+                    <td th:text="${r.vaccine.brandName}">Vaccine</td>
+                    <td th:text="${r.requestedQuantity}">0</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${r.status.name() == 'DISPATCHED'} ? 'active' : (${r.status.name() == 'REJECTED'} ? 'inactive' : '')"
+                              th:text="${r.status}">PENDING</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(inventoryRequests)}">
+                No stock requests submitted yet.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Events summary -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3 class="panel-title">Events Summary</h3>
+        </div>
+        <p class="empty-state" th:if="${#lists.isEmpty(recentEvents)}">
+            No vaccination events recorded yet.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

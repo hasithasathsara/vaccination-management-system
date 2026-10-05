@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Registration - VaxTrack</title>
+    <link rel="stylesheet" th:href="@{/css/patient-shared.css}">
+    <link rel="stylesheet" th:href="@{/css/patient-register.css}">
+</head>
+<body>
+
+<div class="register-page">
+
+    <!-- Registration form -->
+    <div class="register-form-card">
+        <h1>Create Your VaxTrack Account</h1>
+        <p class="subtitle">Register once to book vaccinations and track your history.</p>
+
+        <p th:if="${errorMessage}" class="error-message" th:text="${errorMessage}">Error</p>
+
+        <form th:action="@{/register/patient}" th:object="${registrationForm}" method="post">
+
+            <label>ID Type</label>
+            <select th:field="*{idType}" id="idTypeSelect" required>
+                <option value="">Select ID type...</option>
+                <option value="NIC">National Identity Card (NIC)</option>
+                <option value="BIRTH_CERTIFICATE">Birth Certificate (under 18)</option>
+            </select>
+
+            <label for="idNumber">ID Number</label>
+            <input type="text" th:field="*{idNumber}" id="idNumber" placeholder="e.g. 200012345678" required>
+
+            <label for="fullName">Full Name</label>
+            <input type="text" th:field="*{fullName}" id="fullName" placeholder="e.g. Nadeesha Fernando" required>
+
+            <div class="form-row">
+                <div>
+                    <label for="age">Age</label>
+                    <input type="number" th:field="*{age}" id="age" min="0" placeholder="e.g. 29" required>
+                </div>
+                <div>
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="text" th:field="*{phoneNumber}" id="phoneNumber" placeholder="e.g. 0771234567" required>
+                </div>
+            </div>
+
+            <label>Email <span style="font-weight:400;color:#9ca3af;">(optional)</span></label>
+            <input type="email" th:field="*{email}" placeholder="e.g. you@example.com">
+
+            <label>Address <span style="font-weight:400;color:#9ca3af;">(optional)</span></label>
+            <input type="text" th:field="*{address}" placeholder="e.g. Colombo">
+
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input type="password" th:field="*{password}" id="password" placeholder="At least 6 characters" required>
+                <img id="passwordEye" class="toggle-eye"
+                     th:src="@{/images/hide.png}"
+                     th:attr="data-show-icon=@{/images/show.png}, data-hide-icon=@{/images/hide.png}"
+                     onclick="togglePassword('password','passwordEye')">
+            </div>
+
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="password-wrapper">
+                <input type="password" th:field="*{confirmPassword}" id="confirmPassword" placeholder="Re-enter your password" required>
+                <img id="confirmPasswordEye" class="toggle-eye"
+                     th:src="@{/images/hide.png}"
+                     th:attr="data-show-icon=@{/images/show.png}, data-hide-icon=@{/images/hide.png}"
+                     onclick="togglePassword('confirmPassword','confirmPasswordEye')">
+            </div>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <p class="login-link">Already registered? <a th:href="@{/login/patient}">Log in here</a></p>
+    </div>
+
+    <!-- Live digital ID card preview -->
+    <div class="register-preview">
+        <p class="preview-label">Your digital vaccination ID — fills in as you type.<br>It'll live on your dashboard once you're registered.</p>
+
+        <div class="digital-id-card">
+            <div class="id-card-header">
+                <img th:src="@{/images/logo.png}" alt="VaxTrack" class="id-card-logo">
+                <span class="id-card-title">VaxTrack Digital ID</span>
+            </div>
+
+            <span class="id-card-name" id="cardName">Your Name</span>
+
+            <div class="id-card-grid">
+                <div>
+                    <span class="id-card-field-label">ID Number</span>
+                    <span class="id-card-field-value" id="cardIdNumber">ID Number</span>
+                </div>
+                <div>
+                    <span class="id-card-field-label">Age</span>
+                    <span class="id-card-field-value" id="cardAge">—</span>
+                </div>
+                <div>
+                    <span class="id-card-field-label">Phone</span>
+                    <span class="id-card-field-value" id="cardPhone">Phone Number</span>
+                </div>
+            </div>
+
+            <div class="id-card-footer">
+                QR code unlocks once your first appointment is booked.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:src="@{/js/patient-register.js}"></script>
+</body>
+</html>

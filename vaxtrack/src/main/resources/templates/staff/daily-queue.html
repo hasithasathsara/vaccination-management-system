@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{staff/layout}">
+<head>
+    <title>Daily Queue</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <p th:if="${successMessage}" class="flash-banner success" th:text="${successMessage}">Success</p>
+    <p th:if="${errorMessage}" class="flash-banner error" th:text="${errorMessage}">Error</p>
+
+    <div class="panel">
+        <table class="data-table" th:if="${not #lists.isEmpty(queue)}">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Patient</th>
+                <th>Vaccine</th>
+                <th>Dose</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${queue}">
+                <td th:text="${a.event.timeSlot}">Time</td>
+                <td th:text="${a.patient.fullName}">Patient</td>
+                <td th:text="${a.event.vaccine.brandName}">Vaccine</td>
+                <td th:text="${a.doseNumber}">1</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${a.status.name() == 'VACCINATED'} ? 'active' : (${a.status.name() == 'BOOKED'} ? '' : 'inactive')"
+                          th:text="${a.status}">BOOKED</span>
+                </td>
+                <td>
+                    <a th:if="${a.status.name() == 'BOOKED'}" th:href="@{'/staff/verify/' + ${a.appointmentId}}"
+                       class="btn-icon" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">
+                        Verify
+                    </a>
+                    <span th:unless="${a.status.name() == 'BOOKED'}" style="color:#9ca3af;font-size:12px;">Processed</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(queue)}">
+            No appointments booked at your hospital for today.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

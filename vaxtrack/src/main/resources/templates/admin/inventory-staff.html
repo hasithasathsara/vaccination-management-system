@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Inventory Staff Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input type="text" id="inventoryStaffSearch" class="search-input" data-table-target="inventoryStaffTable"
+               placeholder="Search by username or email...">
+        <button class="btn-primary" onclick="openModal('addInventoryManagerModal')">+ Add Inventory Manager</button>
+    </div>
+
+    <!-- Inventory staff table -->
+    <div class="panel">
+        <table class="data-table" id="inventoryStaffTable" th:if="${not #lists.isEmpty(inventoryStaff)}">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${inventoryStaff}">
+                <td th:text="${m.username}">username</td>
+                <td th:text="${m.email} ?: '—'">email</td>
+                <td th:text="${m.phoneNumber} ?: '—'">phone</td>
+                <td>
+                    <span class="badge" th:classappend="${m.status.name() == 'ACTIVE'} ? 'active' : 'inactive'"
+                          th:text="${m.status}">ACTIVE</span>
+                </td>
+                <td class="actions-cell">
+                    <form th:action="@{/admin/inventory-staff/{id}/toggle-status(id=${m.userId})}" method="post"
+                          class="inline-form">
+                        <button type="submit" class="btn-icon"
+                                th:title="${m.status.name() == 'ACTIVE'} ? 'Suspend' : 'Reactivate'"
+                                th:onclick="${m.status.name() == 'ACTIVE'} ? 'return confirm(\'Suspend this Inventory Manager account?\')' : null">
+                            <span th:text="${m.status.name() == 'ACTIVE'} ? '⛔' : '↺'">⛔</span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(inventoryStaff)}">
+            No Inventory Managers yet. Click "Add Inventory Manager" to create the first account.
+        </p>
+    </div>
+
+    <!-- Add Inventory Manager modal -->
+    <div class="modal-overlay" id="addInventoryManagerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Inventory Manager</h3>
+                <button class="modal-close" onclick="closeModal('addInventoryManagerModal')">&times;</button>
+            </div>
+            <form th:action="@{/admin/inventory-staff/add}" th:object="${newInventoryManager}" method="post">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" th:field="*{username}" placeholder="e.g. national.inventory" required>
+                </div>
+                <div class="form-group">
+                    <label>Email <span class="optional-tag">(optional)</span></label>
+                    <input type="email" th:field="*{email}" placeholder="e.g. inventory@moh.gov.lk">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number <span class="optional-tag">(optional)</span></label>
+                    <input type="text" th:field="*{phoneNumber}" placeholder="e.g. 0771234567">
+                </div>
+                <p class="modal-note">
+                    A secure temporary password will be generated automatically. You'll see it
+                    once on the next screen — copy it and share it, since it can't be shown again.
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addInventoryManagerModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- One-time credentials modal -->
+    <div class="modal-overlay no-outside-close" id="credentialsModal" th:if="${generatedPassword}">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✅ Inventory Manager Account Created</h3>
+            </div>
+            <div class="credentials-box">
+                <p class="modal-note">
+                    Copy these details now and share them. For security, this password is
+                    <strong>never shown again</strong> after you leave this page.
+                </p>
+                <div class="credential-row">
+                    <span class="credential-label">Username</span>
+                    <span class="credential-value" th:text="${generatedUsername}">username</span>
+                </div>
+                <div class="credential-row">
+                    <span class="credential-label">Temporary Password</span>
+                    <span class="credential-value" id="generatedPasswordText" th:text="${generatedPassword}">password</span>
+                </div>
+                <button type="button" class="btn-secondary" onclick="copyGeneratedPassword(this)">📋 Copy Password</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" onclick="closeModal('credentialsModal')">I've Saved This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-open credentials modal -->
+    <script th:if="${generatedPassword}">
+        document.addEventListener("DOMContentLoaded", function () {
+            openModal('credentialsModal');
+        });
+    </script>
+
+</div>
+</body>
+</html>

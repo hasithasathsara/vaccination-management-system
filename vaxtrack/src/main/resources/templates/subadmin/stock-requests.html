@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{subadmin/layout}">
+<head>
+    <title>Inventory Request Management</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Flash banners -->
+    <div class="flash-banner success" id="flashBanner" th:if="${successMessage}">
+        <span th:text="${successMessage}">Success</span>
+    </div>
+    <div class="flash-banner error" id="flashBanner" th:if="${errorMessage}">
+        <span th:text="${errorMessage}">Error</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input type="text" id="requestSearch" class="search-input" data-table-target="requestTable"
+               placeholder="Search by hospital or vaccine...">
+        <button class="btn-primary" onclick="openModal('addRequestModal')">+ Request Stock</button>
+    </div>
+
+    <!-- Requests table -->
+    <div class="panel">
+        <table class="data-table" id="requestTable" th:if="${not #lists.isEmpty(requests)}">
+            <thead>
+            <tr>
+                <th>Hospital</th>
+                <th>Vaccine</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Requested On</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${requests}">
+                <td th:text="${r.hospital.name}">Hospital</td>
+                <td th:text="${r.vaccine.brandName}">Vaccine</td>
+                <td th:text="${r.requestedQuantity}">0</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${r.status.name() == 'DISPATCHED'} ? 'active' : (${r.status.name() == 'REJECTED'} ? 'inactive' : '')"
+                          th:text="${r.status}">PENDING</span>
+                </td>
+                <td th:text="${#temporals.format(r.requestedAt, 'dd MMM yyyy')}">Date</td>
+                <td class="actions-cell">
+                    <form th:if="${r.status.name() == 'PENDING'}"
+                          th:action="@{/subadmin/stock-requests/{id}/withdraw(id=${r.requestId})}" method="post"
+                          class="inline-form">
+                        <button type="submit" class="btn-icon" title="Withdraw"
+                                onclick="return confirm('Withdraw this stock request?')">🗑</button>
+                    </form>
+                    <span th:unless="${r.status.name() == 'PENDING'}" style="color:#9ca3af;font-size:12px;">
+                        <span th:if="${r.status.name() == 'REJECTED'}" th:text="${r.reason} ?: 'Rejected'">Rejected</span>
+                        <span th:unless="${r.status.name() == 'REJECTED'}">Resolved</span>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(requests)}">
+            No stock requests yet. Click "Request Stock" to submit the first one.
+        </p>
+    </div>
+
+    <!-- Add Stock Request modal -->
+    <div class="modal-overlay" id="addRequestModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Request Vaccine Stock</h3>
+                <button class="modal-close" onclick="closeModal('addRequestModal')">&times;</button>
+            </div>
+            <form th:action="@{/subadmin/stock-requests/add}" th:object="${newRequest}" method="post">
+                <div class="form-group">
+                    <label>Hospital</label>
+                    <select th:field="*{hospitalId}" required>
+                        <option value="">Select hospital in your district...</option>
+                        <option th:each="h : ${hospitals}" th:value="${h.hospitalId}" th:text="${h.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vaccine</label>
+                    <select th:field="*{vaccineId}" required>
+                        <option value="">Select vaccine...</option>
+                        <option th:each="v : ${vaccines}" th:value="${v.vaccineId}" th:text="${v.brandName}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Requested Quantity (Doses)</label>
+                    <input type="number" th:field="*{requestedQuantity}" min="1" placeholder="e.g. 500" required>
+                </div>
+                <p class="modal-note">
+                    The Inventory Manager will review this and either dispatch or reject it.
+                    You can withdraw the request anytime before then.
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addRequestModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

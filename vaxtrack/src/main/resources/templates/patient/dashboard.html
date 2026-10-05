@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{patient/layout}">
+<head>
+    <title>My Dashboard</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="page-header" style="margin-bottom:24px;">
+        <p class="welcome-text" style="color:var(--text-secondary);margin:0;">Welcome back,</p>
+        <h2 style="margin:2px 0 0;font-size:26px;" th:text="${patient.fullName}">Patient</h2>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- Digital ID card -->
+        <div class="digital-id-card">
+            <div class="id-card-header">
+                <img th:src="@{/images/logo.png}" alt="VaxTrack" class="id-card-logo">
+                <span class="id-card-title">VaxTrack Digital ID</span>
+            </div>
+            <span class="id-card-name" th:text="${patient.fullName}">Name</span>
+            <div class="id-card-grid">
+                <div>
+                    <span class="id-card-field-label" th:text="${patient.idType}">ID Type</span>
+                    <span class="id-card-field-value" th:text="${patient.idNumber}">ID Number</span>
+                </div>
+                <div>
+                    <span class="id-card-field-label">Age</span>
+                    <span class="id-card-field-value" th:text="${patient.age}">0</span>
+                </div>
+                <div>
+                    <span class="id-card-field-label">Phone</span>
+                    <span class="id-card-field-value" th:text="${patient.phoneNumber}">Phone</span>
+                </div>
+            </div>
+            <div class="id-card-footer">
+                QR code shown below once you have an upcoming appointment.
+            </div>
+        </div>
+
+        <!-- Right column -->
+        <div>
+            <div class="dashboard-panel" style="margin-bottom:20px;">
+                <h3>Upcoming Appointment</h3>
+
+                <div th:if="${upcomingAppointment}" class="appointment-card">
+                    <div class="appointment-card-details">
+                        <strong th:text="${upcomingAppointment.event.hospital.name}">Hospital</strong>
+                        <span th:text="${upcomingAppointment.event.vaccine.brandName} + ' — Dose ' + ${upcomingAppointment.doseNumber}">Vaccine</span>
+                        <span th:text="${upcomingAppointment.event.eventDate} + ' • ' + ${upcomingAppointment.event.timeSlot}">Date</span>
+                    </div>
+                    <a th:href="@{/patient/my-bookings}" class="btn-nav-filled" style="white-space:nowrap;">View QR →</a>
+                </div>
+
+                <p class="empty-state-public" th:unless="${upcomingAppointment}">
+                    No upcoming appointments.
+                    <a th:href="@{/patient/book-appointment}" style="color:var(--primary-blue);font-weight:700;">Book one now →</a>
+                </p>
+            </div>
+
+            <div class="dashboard-panel">
+                <h3>Notifications</h3>
+
+                <div th:if="${not #lists.isEmpty(notifications)}">
+                    <div class="notification-item" th:each="n : ${notifications}">
+                        <span>🔔</span>
+                        <div>
+                            <div th:text="${n.message}">Message</div>
+                            <div style="color:var(--text-secondary);font-size:11px;margin-top:2px;"
+                                 th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="empty-state-public" th:if="${#lists.isEmpty(notifications)}">
+                    You're all caught up — no notifications yet.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>
